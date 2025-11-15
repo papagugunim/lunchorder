@@ -701,6 +701,9 @@
                     <button class="btn btn-success btn-full" onclick="copyToClipboard()">
                         📋 클립보드에 복사 / Копировать
                     </button>
+                    <button class="btn btn-success btn-full" onclick="sendToRestaurant()" style="margin-top: 10px;">
+                        🍽️ 식당으로 전송하기 / Отправить в ресторан
+                    </button>
                 </div>
 
                 <div class="admin-controls">
@@ -1271,6 +1274,16 @@
             navigator.clipboard.writeText(text).then(() => {
                 alert('클립보드에 복사되었습니다! WhatsApp에 붙여넣기 하세요.');
             });
+        }
+
+        function sendToRestaurant() {
+            const confirmed = confirm('식당으로 주문을 전송하시겠습니까?\n\nОтправить заказ в ресторан?');
+            if (confirmed) {
+                const text = document.getElementById('whatsappText').textContent;
+                const restaurantPhone = '79772775779'; // +79772775779
+                const whatsappUrl = `https://wa.me/${restaurantPhone}?text=${encodeURIComponent(text)}`;
+                window.open(whatsappUrl, '_blank');
+            }
         }
 
         function downloadCSV() {
