@@ -677,6 +677,18 @@
                     </div>
                 </div>
 
+                <!-- WhatsApp 전송용 텍스트 (식당용) -->
+                <div class="whatsapp-output" style="margin-top: 30px;">
+                    <h3 style="color: #4caf50; margin-bottom: 15px;">📱 WhatsApp 전송용 텍스트 (식당용)</h3>
+                    <div class="whatsapp-text" id="whatsappText"></div>
+                    <button class="btn btn-success btn-full" onclick="copyToClipboard()">
+                        📋 클립보드에 복사 / Копировать
+                    </button>
+                    <button class="btn btn-success btn-full" onclick="sendToRestaurant()" style="margin-top: 10px;">
+                        🍽️ 식당으로 전송하기 / Отправить в ресторан
+                    </button>
+                </div>
+
                 <!-- 직원 주문 현황 -->
                 <h3 style="margin-top: 30px; color: #ED1C24;">👥 직원 주문 현황</h3>
                 <div class="employee-list" id="employeeStatus">
@@ -708,15 +720,11 @@
                     <div id="menuSummary"></div>
                 </div>
 
-                <div class="whatsapp-output">
-                    <h3 style="color: #4caf50; margin-bottom: 15px;">📱 WhatsApp 전송용 텍스트 (식당용)</h3>
-                    <div class="whatsapp-text" id="whatsappText"></div>
-                    <button class="btn btn-success btn-full" onclick="copyToClipboard()">
-                        📋 클립보드에 복사 / Копировать
-                    </button>
-                    <button class="btn btn-success btn-full" onclick="sendToRestaurant()" style="margin-top: 10px;">
-                        🍽️ 식당으로 전송하기 / Отправить в ресторан
-                    </button>
+                <!-- 직원별 선호 메뉴 통계 -->
+                <div class="preference-section" style="margin-top: 30px;">
+                    <h3 style="color: #9c27b0;">📊 직원별 선호 메뉴 통계</h3>
+                    <p style="margin: 10px 0; color: #666;">각 직원이 가장 자주 주문한 메뉴 TOP 3</p>
+                    <div id="employeePreferences"></div>
                 </div>
 
                 <div class="admin-controls">
@@ -1082,6 +1090,34 @@
             const today = new Date().toDateString();
             localStorage.setItem(STORAGE_KEYS.orders, JSON.stringify(orders));
             localStorage.setItem(STORAGE_KEYS.date, today);
+
+            // 주문 내역을 전체 히스토리에도 저장 (통계용)
+            saveToOrderHistory(orders);
+        }
+
+        function saveToOrderHistory(orders) {
+            const allHistory = JSON.parse(localStorage.getItem('allOrderHistory') || '[]');
+            const today = new Date().toISOString().split('T')[0];
+
+            orders.forEach(order => {
+                // 같은 날짜, 같은 사용자의 주문은 업데이트
+                const existingIndex = allHistory.findIndex(h =>
+                    h.date === today && h.user === order.user && h.isGuest === order.isGuest
+                );
+
+                const historyEntry = {
+                    ...order,
+                    date: today
+                };
+
+                if (existingIndex >= 0) {
+                    allHistory[existingIndex] = historyEntry;
+                } else {
+                    allHistory.push(historyEntry);
+                }
+            });
+
+            localStorage.setItem('allOrderHistory', JSON.stringify(allHistory));
         }
 
         function checkAndResetDaily() {
@@ -1233,6 +1269,7 @@
             }
 
             generateWhatsAppText(activeOrders, menuCount);
+            updateEmployeePreferences();
         }
 
         function generateWhatsAppText(activeOrders, menuCount) {
@@ -1298,6 +1335,66 @@
                 const whatsappUrl = `https://wa.me/${restaurantPhone}?text=${encodeURIComponent(text)}`;
                 window.open(whatsappUrl, '_blank');
             }
+        }
+
+        function updateEmployeePreferences() {
+            // localStorage에서 과거 모든 주문 내역 가져오기
+            const allOrders = JSON.parse(localStorage.getItem('allOrderHistory') || '[]');
+            const employees = loadEmployees();
+
+            const preferencesDiv = document.getElementById('employeePreferences');
+
+            if (allOrders.length === 0) {
+                preferencesDiv.innerHTML = '<div class="empty-state">📭<br>아직 주문 내역이 없습니다</div>';
+                return;
+            }
+
+            // 직원별 메뉴 카운트
+            const employeeMenuCount = {};
+            employees.forEach(emp => {
+                employeeMenuCount[emp.name] = {};
+            });
+
+            allOrders.forEach(order => {
+                if (!order.isGuest && order.menu !== '스킵' && employeeMenuCount[order.user]) {
+                    const menu = order.menu;
+                    employeeMenuCount[order.user][menu] = (employeeMenuCount[order.user][menu] || 0) + 1;
+                }
+            });
+
+            // 각 직원별 TOP 3 메뉴 추출
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">';
+
+            employees.forEach(emp => {
+                const menuStats = employeeMenuCount[emp.name];
+                const sortedMenus = Object.entries(menuStats)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 3);
+
+                html += `
+                    <div class="card" style="padding: 15px; background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);">
+                        <h4 style="color: #ED1C24; margin-bottom: 10px;">${emp.name}</h4>
+                `;
+
+                if (sortedMenus.length === 0) {
+                    html += '<p style="color: #999; font-size: 0.9rem;">주문 내역 없음</p>';
+                } else {
+                    sortedMenus.forEach(([menu, count], index) => {
+                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
+                        html += `
+                            <div style="padding: 8px; margin: 5px 0; background: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>${medal} ${menu}</span>
+                                <span style="background: #ED1C24; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">${count}회</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += '</div>';
+            });
+
+            html += '</div>';
+            preferencesDiv.innerHTML = html;
         }
 
         function downloadCSV() {
