@@ -71,6 +71,16 @@
             color: #ED1C24;
             font-weight: 600;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .lotte-logo img {
+            height: 24px;
+            width: auto;
+            vertical-align: middle;
         }
 
         .holiday-notice {
@@ -592,7 +602,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="lotte-logo">🍫 LOTTE CONFECTIONERY</div>
+            <div class="lotte-logo">
+                <img src="logo.png" alt="Lotte Logo">
+                Happy Moments
+            </div>
             <h1>🍱 롯데제과 러시아법인<br>점심 주문 시스템</h1>
             <div class="subtitle">Система заказа обедов | Lunch Order System</div>
             <div id="holidayNotice"></div>
@@ -603,8 +616,8 @@
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('employee')">직원 주문</button>
-            <button class="tab-btn" onclick="switchTab('admin')">관리자 (정소영)</button>
+            <button class="tab-btn active" onclick="switchTab('employee')">주문하기</button>
+            <button class="tab-btn" onclick="switchTab('admin')">관리자</button>
             <button class="tab-btn" onclick="switchTab('settings')">설정</button>
         </div>
 
@@ -1236,7 +1249,7 @@
                 weekday: 'long'
             });
 
-            let text = `🍫 LOTTE CONFECTIONERY 롯데제과\n`;
+            let text = `🍫 Happy Moments 롯데제과\n`;
             text += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
             text += `📅 ${dateKR}\n`;
             text += `📅 ${dateRU}\n\n`;
@@ -1264,7 +1277,7 @@
 
             text += `━━━━━━━━━━━━━━━━━━━━━\n`;
             text += `🍫 롯데제과 러시아법인\n`;
-            text += `🍫 LOTTE CONFECTIONERY Russia\n`;
+            text += `🍫 Happy Moments Russia\n`;
 
             document.getElementById('whatsappText').textContent = text;
         }
