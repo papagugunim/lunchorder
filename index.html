@@ -624,10 +624,6 @@
         <!-- 직원 주문 탭 -->
         <div id="employee" class="tab-content active">
             <div class="card">
-                <div class="success-message" id="orderSuccess">
-                    ✅ 주문이 성공적으로 등록되었습니다!
-                </div>
-
                 <div class="form-group">
                     <label>이름 / Имя</label>
                     <select id="userName" onchange="loadUserInfo()">
@@ -650,6 +646,10 @@
                 <button class="btn btn-primary btn-full" onclick="submitOrder()" id="submitBtn">
                     주문하기 / Заказать
                 </button>
+
+                <div class="success-message" id="orderSuccess" style="margin-top: 20px;">
+                    ✅ 주문이 성공적으로 등록되었습니다!
+                </div>
             </div>
         </div>
 
@@ -987,11 +987,6 @@
 
             if (!menuItem) {
                 alert('메뉴를 선택하거나 입력해주세요!');
-                return;
-            }
-
-            if (isDeadlinePassed()) {
-                alert('주문 마감 시간이 지났습니다!');
                 return;
             }
 
@@ -1455,13 +1450,10 @@
 
             const diff = deadline - now;
             const deadlineInfo = document.getElementById('deadlineInfo');
-            const submitBtn = document.getElementById('submitBtn');
 
             if (diff < 0) {
                 document.getElementById('timeLeft').textContent = '마감됨';
                 deadlineInfo.classList.add('closed');
-                if (submitBtn) submitBtn.disabled = true;
-                if (submitBtn) submitBtn.textContent = '주문 마감 / Закрыто';
             } else {
                 const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
                 const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
