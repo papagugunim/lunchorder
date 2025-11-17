@@ -1148,7 +1148,7 @@
                 // WhatsApp 알림 버튼 (미주문자만)
                 let whatsappButton = '';
                 if (status === 'pending' && emp.phone) {
-                    const message = `안녕하세요 ${emp.name}님, 오늘 점심 메뉴를 주문해 주세요! 🍱\n마감 시간: ${settings.deadline}`;
+                    const message = `안녕하세요 ${emp.name}님, 오늘 점심 메뉴를 주문해 주세요! 🍱\n\n마감 시간: ${settings.deadline}\n\n👉 주문하기: https://papagugunim.github.io/lunchorder/`;
                     const whatsappLink = `https://wa.me/${emp.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
                     whatsappButton = `
                         <button class="btn btn-success btn-small" onclick="window.open('${whatsappLink}', '_blank')" style="margin-left: 8px;">
@@ -1190,7 +1190,7 @@
             }
 
             const remindersHTML = notOrdered.map(emp => {
-                const message = `안녕하세요 ${emp.name}님, 오늘 점심 메뉴를 주문해 주세요! 🍱\n마감 시간: ${settings.deadline}`;
+                const message = `안녕하세요 ${emp.name}님, 오늘 점심 메뉴를 주문해 주세요! 🍱\n\n마감 시간: ${settings.deadline}\n\n👉 주문하기: https://papagugunim.github.io/lunchorder/`;
                 const whatsappLink = emp.phone ?
                     `https://wa.me/${emp.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}` :
                     '#';
@@ -1219,7 +1219,7 @@
         }
 
         function copyReminderText(name, deadline) {
-            const message = `안녕하세요 ${name}님, 오늘 점심 메뉴를 주문해 주세요! 🍱\n마감 시간: ${deadline}`;
+            const message = `안녕하세요 ${name}님, 오늘 점심 메뉴를 주문해 주세요! 🍱\n\n마감 시간: ${deadline}\n\n👉 주문하기: https://papagugunim.github.io/lunchorder/`;
             navigator.clipboard.writeText(message).then(() => {
                 alert('메시지가 클립보드에 복사되었습니다!');
             });
