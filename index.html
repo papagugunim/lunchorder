@@ -748,6 +748,16 @@
                     </div>
                 </div>
 
+                <h3 style="margin-top: 30px; color: #ED1C24;">📊 구글 스프레드시트 연동</h3>
+                <div class="form-group">
+                    <label>Google Apps Script 웹 앱 URL</label>
+                    <input type="text" id="googleSheetUrl" placeholder="https://script.google.com/macros/s/...">
+                    <small style="color: #666; display: block; margin-top: 8px;">
+                        주문 데이터를 구글 스프레드시트에 자동으로 저장합니다.
+                        <a href="https://script.google.com" target="_blank" style="color: #ED1C24;">Apps Script 설정하기</a>
+                    </small>
+                </div>
+
                 <h3 style="margin-top: 30px; color: #ED1C24;">👥 직원 관리</h3>
                 <div id="employeeManagement"></div>
 
@@ -834,7 +844,36 @@
             date: 'ordersDate'
         };
 
+        // 구글 시트 웹 앱 URL (기본값)
+        const DEFAULT_GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyYQfgrLOyBFBfnHvb8b90iqpQOPjbSbVNAVESxLesSk101We5uLiBNRCS8zS5IzNq9wg/exec';
+
         let guestCounter = 0;
+
+        // 구글 시트로 데이터 전송
+        async function sendToGoogleSheet(orderData) {
+            const settings = loadSettings();
+            const googleSheetUrl = settings.googleSheetUrl;
+
+            if (!googleSheetUrl) {
+                console.log('구글 시트 URL이 설정되지 않았습니다.');
+                return;
+            }
+
+            try {
+                const response = await fetch(googleSheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                console.log('구글 시트에 데이터 전송 완료:', orderData);
+            } catch (error) {
+                console.error('구글 시트 전송 오류:', error);
+            }
+        }
 
         function isWorkingDay(date = new Date()) {
             const dateStr = date.toISOString().split('T')[0];
@@ -873,7 +912,8 @@
                 deadline: settings.deadline || '12:20',
                 reminderMinutes: settings.reminderMinutes || 20,
                 menuList: settings.menuList || DEFAULT_MENUS,
-                employees: settings.employees || DEFAULT_EMPLOYEES
+                employees: settings.employees || DEFAULT_EMPLOYEES,
+                googleSheetUrl: settings.googleSheetUrl || DEFAULT_GOOGLE_SHEET_URL
             };
         }
 
@@ -891,7 +931,8 @@
                 deadline: document.getElementById('deadlineTimeSetting').value,
                 reminderMinutes: parseInt(document.getElementById('reminderMinutes').value),
                 menuList: document.getElementById('menuList').value.split('\n').filter(m => m.trim()),
-                employees: employees
+                employees: employees,
+                googleSheetUrl: document.getElementById('googleSheetUrl').value.trim() || DEFAULT_GOOGLE_SHEET_URL
             };
 
             localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
@@ -905,6 +946,7 @@
             document.getElementById('reminderMinutes').value = settings.reminderMinutes;
             document.getElementById('menuList').value = settings.menuList.join('\n');
             document.getElementById('deadlineTime').textContent = settings.deadline;
+            document.getElementById('googleSheetUrl').value = settings.googleSheetUrl;
 
             const empMgmt = document.getElementById('employeeManagement');
             empMgmt.innerHTML = settings.employees.map((emp, idx) => `
@@ -1002,6 +1044,16 @@
 
             saveOrders(orders);
 
+            // 구글 시트로 데이터 전송
+            const today = new Date().toISOString().split('T')[0];
+            sendToGoogleSheet({
+                date: today,
+                user: userName,
+                menu: menuItem,
+                time: order.time,
+                isGuest: false
+            });
+
             const successMsg = document.getElementById('orderSuccess');
             successMsg.classList.add('show');
             setTimeout(() => successMsg.classList.remove('show'), 3000);
@@ -1061,6 +1113,17 @@
             });
 
             saveOrders(orders);
+
+            // 구글 시트로 데이터 전송
+            const today = new Date().toISOString().split('T')[0];
+            sendToGoogleSheet({
+                date: today,
+                user: `${name} (손님)`,
+                menu: menuItem,
+                time: now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                isGuest: true
+            });
+
             alert(`${name} 손님의 주문이 추가되었습니다!`);
             document.getElementById('guestList').innerHTML = '';
             updateAdminView();
