@@ -1279,46 +1279,30 @@
             const today = new Date();
             const dateKR = today.toLocaleDateString('ko-KR', {
                 year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'long'
+                month: '2-digit',
+                day: '2-digit',
+                weekday: 'short'
             });
             const dateRU = today.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
                 year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'long'
+                weekday: 'short'
             });
 
-            let text = `🍫 Happy Moments 롯데제과\n`;
-            text += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
-            text += `📅 ${dateKR}\n`;
-            text += `📅 ${dateRU}\n\n`;
-            text += `🍱 점심 주문 / Заказ обедов\n\n`;
-            text += `총 ${activeOrders.length}명 / Всего: ${activeOrders.length} чел.\n`;
-            text += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+            let text = `🍫 Happy Moments - 롯데제과 러시아법인\n`;
+            text += `📅 ${dateKR} | ${dateRU}\n\n`;
+            text += `🍱 점심 주문 - Всего: ${activeOrders.length}명\n\n`;
 
             // 메뉴별 집계 (한글/러시아어)
-            text += `📋 메뉴별 수량 / Меню:\n\n`;
             Object.entries(menuCount)
                 .sort((a, b) => b[1] - a[1])
                 .forEach(([menu, count]) => {
                     const menuRU = MENU_TRANSLATIONS[menu] || menu;
-                    text += `• ${menu}\n  ${menuRU}\n  수량: ${count}개 (${count} шт.)\n\n`;
+                    text += `• ${menu} (${menuRU}) - ${count}개\n`;
                 });
 
-            text += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-            // 개별 주문자 명단
-            text += `👥 주문자 명단 / Список заказов:\n\n`;
-            activeOrders.forEach((order, index) => {
-                const menuRU = MENU_TRANSLATIONS[order.menu] || order.menu;
-                text += `${index + 1}. ${order.user}\n   ${order.menu} / ${menuRU}\n\n`;
-            });
-
-            text += `━━━━━━━━━━━━━━━━━━━━━\n`;
-            text += `🍫 롯데제과 러시아법인\n`;
-            text += `🍫 Happy Moments Russia\n`;
+            text += `\n🍫 Лотте КФ Рус\n`;
 
             document.getElementById('whatsappText').textContent = text;
         }
