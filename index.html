@@ -630,7 +630,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>메뉴 선택 / Выбор меню</label>
+                    <label>기본 메뉴 선택 (필수) / Основное меню (обязательно)</label>
                     <div class="menu-options" id="menuOptions">
                         <!-- 메뉴 옵션들이 여기에 동적으로 추가됩니다 -->
                     </div>
@@ -639,6 +639,13 @@
                 <div class="form-group">
                     <label>직접 입력 (선택사항) / Ввод вручную</label>
                     <input type="text" id="customMenu" placeholder="메뉴를 직접 입력하세요">
+                </div>
+
+                <div class="form-group">
+                    <label>사이드 메뉴 (선택사항) / Гарнир (по желанию)</label>
+                    <div class="menu-options" id="sideMenuOptions">
+                        <!-- 사이드 메뉴 옵션들이 여기에 동적으로 추가됩니다 -->
+                    </div>
                 </div>
 
                 <button class="btn btn-primary btn-full" onclick="submitOrder()" id="submitBtn">
@@ -782,8 +789,8 @@
             '짬뽕면': 'Чампонмён (Jjamppong)',
             '해물순두부': 'Сундубу с морепродуктами',
             '순두부찌개': 'Сундубу ччигэ',
-            '고등어조림+김밥': 'Скумбрия + кимбап',
-            '고등어구이+김밥': 'Жареная скумбрия + кимбап',
+            '고등어조림': 'Скумбрия тушёная',
+            '고등어구이': 'Скумбрия жареная',
             '해물볶음밥': 'Боккымбап с морепродуктами',
             '명가해장국': 'Мёнга хэджангук',
             '잡채밥': 'Чапчебап',
@@ -803,7 +810,7 @@
             '차돌짬뽕밥': 'Чадоль чампонбап',
             '차돌짬뽕면': 'Чадоль чампон',
             '김밥': 'Кимбап',
-            '김밥(포장)': 'Кимбап (на вынос)',
+            '공기밥': 'Рис',
             '스킵': 'Пропустить (Skip)'
         };
 
@@ -829,11 +836,16 @@
         // 기본 메뉴 목록
         const DEFAULT_MENUS = [
             '순대국', '갈비탕', '짬뽕밥', '짬뽕면', '해물순두부', '순두부찌개',
-            '고등어조림+김밥', '해물볶음밥', '명가해장국',
+            '고등어조림', '고등어구이', '해물볶음밥', '명가해장국',
             '잡채밥', '비빔밥', '돌솥비빔밥', '김치볶음밥', '뚝배기불고기',
             '광어매운탕', '도가니탕', '알탕', '돈가스정식',
             '삼겹살정식', '제육볶음', '떡만두국', '육계장', '김치찌개',
-            '차돌짬뽕밥', '차돌짬뽕면', '김밥', '김밥(포장)', '스킵'
+            '차돌짬뽕밥', '차돌짬뽕면', '스킵'
+        ];
+
+        // 사이드 메뉴 목록
+        const DEFAULT_SIDE_MENUS = [
+            '김밥', '공기밥'
         ];
 
         const STORAGE_KEYS = {
@@ -912,6 +924,7 @@
                 deadline: settings.deadline || '12:20',
                 reminderMinutes: settings.reminderMinutes || 20,
                 menuList: settings.menuList || DEFAULT_MENUS,
+                sideMenuList: settings.sideMenuList || DEFAULT_SIDE_MENUS,
                 employees: settings.employees || DEFAULT_EMPLOYEES,
                 googleSheetUrl: settings.googleSheetUrl || DEFAULT_GOOGLE_SHEET_URL
             };
@@ -981,30 +994,57 @@
 
         function renderMenuOptions() {
             const settings = loadSettings();
+
+            // 기본 메뉴 렌더링
             const container = document.getElementById('menuOptions');
             container.innerHTML = '';
-
             settings.menuList.forEach(menu => {
                 const option = document.createElement('div');
                 option.className = 'menu-option' + (menu === '스킵' ? ' skip' : '');
                 option.textContent = menu;
-                option.onclick = () => selectMenu(menu, option);
+                option.onclick = () => selectMenu(menu, option, 'main');
                 container.appendChild(option);
+            });
+
+            // 사이드 메뉴 렌더링
+            const sideContainer = document.getElementById('sideMenuOptions');
+            sideContainer.innerHTML = '';
+            settings.sideMenuList.forEach(menu => {
+                const option = document.createElement('div');
+                option.className = 'menu-option side-menu-option';
+                option.textContent = menu;
+                option.onclick = () => selectMenu(menu, option, 'side');
+                sideContainer.appendChild(option);
             });
         }
 
         let selectedMenu = null;
+        let selectedSideMenu = null;
 
-        function selectMenu(menu, element) {
-            document.querySelectorAll('.menu-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
+        function selectMenu(menu, element, type) {
+            if (type === 'main') {
+                document.querySelectorAll('#menuOptions .menu-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                element.classList.add('selected');
+                selectedMenu = menu;
 
-            element.classList.add('selected');
-            selectedMenu = menu;
+                if (menu !== '스킵') {
+                    document.getElementById('customMenu').value = '';
+                }
+            } else if (type === 'side') {
+                const alreadySelected = element.classList.contains('selected');
+                document.querySelectorAll('#sideMenuOptions .menu-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
 
-            if (menu !== '스킵') {
-                document.getElementById('customMenu').value = '';
+                if (alreadySelected) {
+                    // 이미 선택된 메뉴를 다시 클릭하면 선택 해제
+                    selectedSideMenu = null;
+                } else {
+                    element.classList.add('selected');
+                    selectedSideMenu = menu;
+                }
             }
         }
 
@@ -1020,7 +1060,7 @@
             let menuItem = customMenu || selectedMenu;
 
             if (!menuItem) {
-                alert('메뉴를 선택하거나 입력해주세요!');
+                alert('기본 메뉴를 선택하거나 입력해주세요!');
                 return;
             }
 
@@ -1031,6 +1071,7 @@
             const order = {
                 user: userName,
                 menu: menuItem,
+                sideMenu: selectedSideMenu || '',
                 time: now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
                 timestamp: now.getTime(),
                 isGuest: false
@@ -1046,10 +1087,11 @@
 
             // 구글 시트로 데이터 전송
             const today = new Date().toISOString().split('T')[0];
+            const fullMenu = menuItem + (selectedSideMenu ? ' + ' + selectedSideMenu : '');
             sendToGoogleSheet({
                 date: today,
                 user: userName,
-                menu: menuItem,
+                menu: fullMenu,
                 time: order.time,
                 isGuest: false
             });
@@ -1063,6 +1105,7 @@
                 opt.classList.remove('selected');
             });
             selectedMenu = null;
+            selectedSideMenu = null;
         }
 
         function addGuest() {
@@ -1203,7 +1246,7 @@
                         status = 'ordered';
                         statusText = '주문완료';
                         statusClass = 'status-ordered';
-                        menuText = order.menu;
+                        menuText = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
                         itemClass = 'ordered';
                     }
                 }
@@ -1306,18 +1349,22 @@
             if (orders.length === 0) {
                 ordersList.innerHTML = '<div class="empty-state">📭<br>아직 주문이 없습니다</div>';
             } else {
-                ordersList.innerHTML = orders.map(order => `
-                    <div class="order-item ${order.isGuest ? 'order-guest' : ''}">
-                        <div class="order-user">${order.user}</div>
-                        <div class="order-menu ${order.menu === '스킵' ? 'order-skip' : ''}">${order.menu}</div>
-                        <div class="order-time">${order.time}</div>
-                    </div>
-                `).join('');
+                ordersList.innerHTML = orders.map(order => {
+                    const fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                    return `
+                        <div class="order-item ${order.isGuest ? 'order-guest' : ''}">
+                            <div class="order-user">${order.user}</div>
+                            <div class="order-menu ${order.menu === '스킵' ? 'order-skip' : ''}">${fullMenu}</div>
+                            <div class="order-time">${order.time}</div>
+                        </div>
+                    `;
+                }).join('');
             }
 
             const menuCount = {};
             activeOrders.forEach(order => {
-                menuCount[order.menu] = (menuCount[order.menu] || 0) + 1;
+                const fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                menuCount[fullMenu] = (menuCount[fullMenu] || 0) + 1;
             });
 
             const menuSummary = document.getElementById('menuSummary');
@@ -1361,7 +1408,16 @@
             Object.entries(menuCount)
                 .sort((a, b) => b[1] - a[1])
                 .forEach(([menu, count]) => {
-                    const menuRU = MENU_TRANSLATIONS[menu] || menu;
+                    let menuRU = '';
+                    if (menu.includes(' + ')) {
+                        // 기본메뉴 + 사이드메뉴 형식
+                        const parts = menu.split(' + ');
+                        const mainRU = MENU_TRANSLATIONS[parts[0]] || parts[0];
+                        const sideRU = MENU_TRANSLATIONS[parts[1]] || parts[1];
+                        menuRU = `${mainRU} + ${sideRU}`;
+                    } else {
+                        menuRU = MENU_TRANSLATIONS[menu] || menu;
+                    }
                     text += `• ${menu} (${menuRU}) - ${count}개\n`;
                 });
 
