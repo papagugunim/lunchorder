@@ -701,17 +701,18 @@
                     <!-- 직원별 주문 상태가 표시됩니다 -->
                 </div>
 
+                <!-- 주문 목록 -->
+                <h3 style="margin-top: 30px; color: #ED1C24;">📋 주문 목록</h3>
+                <div class="orders-list" id="ordersList">
+                    <!-- 주문 목록이 여기에 표시됩니다 -->
+                </div>
+
                 <!-- 손님 추가 -->
                 <div class="guest-section">
                     <h3 style="color: #ff9800;">🎯 손님 추가 / Добавить гостей</h3>
                     <p style="margin: 10px 0; color: #666;">외부 손님이 있을 경우 추가하세요</p>
                     <div class="guest-list" id="guestList"></div>
                     <button class="btn btn-warning btn-small" onclick="addGuest()">+ 손님 추가</button>
-                </div>
-
-                <h3 style="margin-top: 30px; color: #ED1C24;">📋 주문 목록</h3>
-                <div class="orders-list" id="ordersList">
-                    <!-- 주문 목록이 여기에 표시됩니다 -->
                 </div>
 
                 <!-- 직원별 선호 메뉴 통계 -->
@@ -1373,7 +1374,8 @@
                 let itemClass = 'not-ordered';
 
                 if (order) {
-                    if (order.menu === '스킵') {
+                    // 메인이 스킵이고 사이드 메뉴가 없는 경우만 진짜 스킵
+                    if (order.menu === '스킵' && !order.sideMenu) {
                         status = 'skip';
                         statusText = '스킵';
                         statusClass = 'status-skip';
@@ -1383,7 +1385,12 @@
                         status = 'ordered';
                         statusText = '주문완료';
                         statusClass = 'status-ordered';
-                        menuText = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                        // 메인이 스킵이고 사이드가 있으면 사이드만 표시
+                        if (order.menu === '스킵' && order.sideMenu) {
+                            menuText = order.sideMenu;
+                        } else {
+                            menuText = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                        }
                         itemClass = 'ordered';
                     }
                 }
@@ -1471,8 +1478,10 @@
         function updateAdminView() {
             const orders = loadOrders();
 
-            const skipOrders = orders.filter(o => o.menu === '스킵');
-            const activeOrders = orders.filter(o => o.menu !== '스킵');
+            // 스킵: 메인이 스킵이고 사이드 메뉴가 없는 경우만
+            const skipOrders = orders.filter(o => o.menu === '스킵' && !o.sideMenu);
+            // 식사 주문: 메인이 스킵이 아니거나, 사이드 메뉴가 있는 경우
+            const activeOrders = orders.filter(o => o.menu !== '스킵' || o.sideMenu);
             const guestOrders = orders.filter(o => o.isGuest);
 
             document.getElementById('totalOrders').textContent = orders.length;
@@ -1487,7 +1496,14 @@
                 ordersList.innerHTML = '<div class="empty-state">📭<br>아직 주문이 없습니다</div>';
             } else {
                 ordersList.innerHTML = orders.map(order => {
-                    const fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                    // 메인이 "스킵"이고 사이드가 있으면 사이드만 표시
+                    let fullMenu;
+                    if (order.menu === '스킵' && order.sideMenu) {
+                        fullMenu = order.sideMenu;
+                    } else {
+                        fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                    }
+
                     // 시간 포맷팅 (Date 객체인 경우 처리)
                     let displayTime = order.time;
                     if (order.time && typeof order.time === 'string' && order.time.includes('T')) {
@@ -1500,7 +1516,7 @@
                     return `
                         <div class="order-item ${order.isGuest ? 'order-guest' : ''}">
                             <div class="order-user">${order.user}</div>
-                            <div class="order-menu ${order.menu === '스킵' ? 'order-skip' : ''}">${fullMenu}</div>
+                            <div class="order-menu ${order.menu === '스킵' && !order.sideMenu ? 'order-skip' : ''}">${fullMenu}</div>
                             <div class="order-time">${displayTime}</div>
                         </div>
                     `;
@@ -1509,7 +1525,13 @@
 
             const menuCount = {};
             activeOrders.forEach(order => {
-                const fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                // 메인이 "스킵"이고 사이드가 있으면 사이드만 집계
+                let fullMenu;
+                if (order.menu === '스킵' && order.sideMenu) {
+                    fullMenu = order.sideMenu;
+                } else {
+                    fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                }
                 menuCount[fullMenu] = (menuCount[fullMenu] || 0) + 1;
             });
 
