@@ -714,11 +714,6 @@
                     <!-- 주문 목록이 여기에 표시됩니다 -->
                 </div>
 
-                <div class="summary-section">
-                    <h3 style="color: #ED1C24;">메뉴별 집계 / Статистика по меню</h3>
-                    <div id="menuSummary"></div>
-                </div>
-
                 <!-- 직원별 선호 메뉴 통계 -->
                 <div class="preference-section" style="margin-top: 30px;">
                     <h3 style="color: #9c27b0;">📊 직원별 선호 메뉴 통계</h3>
@@ -1517,20 +1512,6 @@
                 const fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
                 menuCount[fullMenu] = (menuCount[fullMenu] || 0) + 1;
             });
-
-            const menuSummary = document.getElementById('menuSummary');
-            if (Object.keys(menuCount).length === 0) {
-                menuSummary.innerHTML = '<div class="empty-state">주문된 메뉴가 없습니다</div>';
-            } else {
-                menuSummary.innerHTML = Object.entries(menuCount)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([menu, count]) => `
-                        <div class="summary-item">
-                            <span><strong>${menu}</strong></span>
-                            <span class="summary-count">${count}개</span>
-                        </div>
-                    `).join('');
-            }
 
             generateWhatsAppText(activeOrders, menuCount);
             updateEmployeePreferences();
