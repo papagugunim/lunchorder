@@ -783,6 +783,7 @@
     <script>
         // 메뉴 러시아어 번역
         const MENU_TRANSLATIONS = {
+            '랜덤 주문': 'Случайный выбор (Random)',
             '순대국': 'Сундэгук (Sundaeguk)',
             '갈비탕': 'Кальбитан (Kalbitang)',
             '짬뽕밥': 'Чампонбап (Jjamppongbap)',
@@ -1187,6 +1188,16 @@
                 return;
             }
 
+            // 랜덤 주문 처리
+            let selectedRandomMenu = null;
+            if (menuItem === '랜덤 주문') {
+                const settings = loadSettings();
+                const availableMenus = settings.menuList.filter(m => m !== '랜덤 주문' && m !== '스킵');
+                const randomIndex = Math.floor(Math.random() * availableMenus.length);
+                selectedRandomMenu = availableMenus[randomIndex];
+                menuItem = selectedRandomMenu;
+            }
+
             const orders = loadOrders();
             const now = new Date();
 
@@ -1220,8 +1231,16 @@
             });
 
             const successMsg = document.getElementById('orderSuccess');
+            if (selectedRandomMenu) {
+                successMsg.innerHTML = `✅ 주문이 성공적으로 등록되었습니다!<br>선택된 메뉴: <strong>${selectedRandomMenu}</strong>`;
+            } else {
+                successMsg.innerHTML = '✅ 주문이 성공적으로 등록되었습니다!';
+            }
             successMsg.classList.add('show');
-            setTimeout(() => successMsg.classList.remove('show'), 3000);
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+                successMsg.innerHTML = '✅ 주문이 성공적으로 등록되었습니다!';
+            }, 3000);
 
             document.getElementById('customMenu').value = '';
             document.querySelectorAll('.menu-option').forEach(opt => {
