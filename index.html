@@ -701,12 +701,6 @@
                     <!-- 직원별 주문 상태가 표시됩니다 -->
                 </div>
 
-                <!-- 주문 목록 -->
-                <h3 style="margin-top: 30px; color: #ED1C24;">📋 주문 목록</h3>
-                <div class="orders-list" id="ordersList">
-                    <!-- 주문 목록이 여기에 표시됩니다 -->
-                </div>
-
                 <!-- 손님 추가 -->
                 <div class="guest-section">
                     <h3 style="color: #ff9800;">🎯 손님 추가 / Добавить гостей</h3>
@@ -1490,38 +1484,6 @@
             document.getElementById('guestCount').textContent = guestOrders.length;
 
             updateEmployeeStatus();
-
-            const ordersList = document.getElementById('ordersList');
-            if (orders.length === 0) {
-                ordersList.innerHTML = '<div class="empty-state">📭<br>아직 주문이 없습니다</div>';
-            } else {
-                ordersList.innerHTML = orders.map(order => {
-                    // 메인이 "스킵"이고 사이드가 있으면 사이드만 표시
-                    let fullMenu;
-                    if (order.menu === '스킵' && order.sideMenu) {
-                        fullMenu = order.sideMenu;
-                    } else {
-                        fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
-                    }
-
-                    // 시간 포맷팅 (Date 객체인 경우 처리)
-                    let displayTime = order.time;
-                    if (order.time && typeof order.time === 'string' && order.time.includes('T')) {
-                        // ISO 형식인 경우 시간만 추출
-                        const date = new Date(order.time);
-                        if (!isNaN(date.getTime())) {
-                            displayTime = date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-                        }
-                    }
-                    return `
-                        <div class="order-item ${order.isGuest ? 'order-guest' : ''}">
-                            <div class="order-user">${order.user}</div>
-                            <div class="order-menu ${order.menu === '스킵' && !order.sideMenu ? 'order-skip' : ''}">${fullMenu}</div>
-                            <div class="order-time">${displayTime}</div>
-                        </div>
-                    `;
-                }).join('');
-            }
 
             const menuCount = {};
             activeOrders.forEach(order => {
