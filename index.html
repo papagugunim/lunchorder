@@ -810,7 +810,9 @@
             '차돌짬뽕밥': 'Чадоль чампонбап',
             '차돌짬뽕면': 'Чадоль чампон',
             '김밥': 'Кимбап',
+            '김밥(포장)': 'Кимбап (на вынос)',
             '공기밥': 'Рис',
+            '공기밥(포장)': 'Рис (на вынос)',
             '스킵': 'Пропустить (Skip)'
         };
 
@@ -835,6 +837,7 @@
 
         // 기본 메뉴 목록
         const DEFAULT_MENUS = [
+            '랜덤 주문',
             '순대국', '갈비탕', '짬뽕밥', '짬뽕면', '해물순두부', '순두부찌개',
             '고등어조림', '고등어구이', '해물볶음밥', '명가해장국',
             '잡채밥', '비빔밥', '돌솥비빔밥', '김치볶음밥', '뚝배기불고기',
@@ -845,7 +848,7 @@
 
         // 사이드 메뉴 목록
         const DEFAULT_SIDE_MENUS = [
-            '김밥', '공기밥'
+            '김밥', '김밥(포장)', '공기밥', '공기밥(포장)'
         ];
 
         const STORAGE_KEYS = {
@@ -1566,7 +1569,7 @@
         function updateEmployeePreferences() {
             // localStorage에서 과거 모든 주문 내역 가져오기
             const allOrders = JSON.parse(localStorage.getItem('allOrderHistory') || '[]');
-            const employees = loadEmployees();
+            const employees = loadSettings().employees;
 
             const preferencesDiv = document.getElementById('employeePreferences');
 
