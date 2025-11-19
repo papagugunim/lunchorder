@@ -1493,11 +1493,20 @@
             } else {
                 ordersList.innerHTML = orders.map(order => {
                     const fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                    // 시간 포맷팅 (Date 객체인 경우 처리)
+                    let displayTime = order.time;
+                    if (order.time && typeof order.time === 'string' && order.time.includes('T')) {
+                        // ISO 형식인 경우 시간만 추출
+                        const date = new Date(order.time);
+                        if (!isNaN(date.getTime())) {
+                            displayTime = date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+                        }
+                    }
                     return `
                         <div class="order-item ${order.isGuest ? 'order-guest' : ''}">
                             <div class="order-user">${order.user}</div>
                             <div class="order-menu ${order.menu === '스킵' ? 'order-skip' : ''}">${fullMenu}</div>
-                            <div class="order-time">${order.time}</div>
+                            <div class="order-time">${displayTime}</div>
                         </div>
                     `;
                 }).join('');
