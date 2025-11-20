@@ -1675,22 +1675,22 @@
 
         function generateWhatsAppText(activeOrders, menuCount, takeoutCount) {
             const today = new Date();
-            const dateKR = today.toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                weekday: 'short'
-            });
-            const dateRU = today.toLocaleDateString('ru-RU', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                weekday: 'short'
-            });
 
-            let text = `🍫 Happy Moments - 롯데제과 러시아법인\n`;
-            text += `📅 ${dateKR} | ${dateRU}\n\n`;
-            text += `🍱 점심 주문 - Всего: ${activeOrders.length} чел.\n\n`;
+            // 러시아식 날짜 표기 (일.월.년)
+            const day = today.getDate().toString().padStart(2, '0');
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const year = today.getFullYear();
+
+            // 러시아어 요일
+            const russianWeekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+            const weekday = russianWeekdays[today.getDay()];
+
+            const dateRU = `${day}.${month}.${year} (${weekday})`;
+
+            let text = `Здравствуйте!\n\n`;
+            text += `📅 ${dateRU}\n`;
+            text += `🕐 Время прибытия: 12.45\n\n`;
+            text += `🍱 Всего: ${activeOrders.length} чел.\n\n`;
 
             // 메뉴별 집계 (한글/러시아어)
             Object.entries(menuCount)
@@ -1711,7 +1711,7 @@
 
             // 포장 메뉴 섹션 (있을 경우만)
             if (Object.keys(takeoutCount).length > 0) {
-                text += `\n📦 포장 / На вынос:\n`;
+                text += `\n📦 На вынос:\n`;
                 Object.entries(takeoutCount)
                     .sort((a, b) => b[1] - a[1])
                     .forEach(([menu, count]) => {
@@ -1720,7 +1720,7 @@
                     });
             }
 
-            text += `\n🍫 Лотте КФ Рус\n`;
+            text += `\nСпасибо!\nЛотте КФ Рус\n`;
 
             document.getElementById('whatsappText').textContent = text;
         }
