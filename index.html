@@ -580,7 +580,7 @@
             }
 
             .menu-options {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             }
 
             .admin-controls {
@@ -1134,6 +1134,7 @@
 
         let selectedMenu = null;
         let selectedSideMenu = null;
+        let currentRandomMenu = null; // 현재 선택된 랜덤 메뉴
 
         function selectMenu(menu, element, type) {
             if (type === 'main') {
@@ -1142,6 +1143,19 @@
                 });
                 element.classList.add('selected');
                 selectedMenu = menu;
+
+                // 랜덤 주문 클릭 시 즉시 랜덤 메뉴 선택
+                if (menu === '랜덤 주문') {
+                    const settings = loadSettings();
+                    const availableMenus = settings.menuList.filter(m => m !== '랜덤 주문' && m !== '스킵');
+                    const randomIndex = Math.floor(Math.random() * availableMenus.length);
+                    currentRandomMenu = availableMenus[randomIndex];
+
+                    // 버튼 텍스트 업데이트
+                    element.innerHTML = `랜덤 주문<br><span style="font-size: 0.9em; color: #FFB6C1;">→ ${currentRandomMenu}</span>`;
+                } else {
+                    currentRandomMenu = null;
+                }
 
                 if (menu !== '스킵') {
                     document.getElementById('customMenu').value = '';
@@ -1181,11 +1195,17 @@
             // 랜덤 주문 처리
             let selectedRandomMenu = null;
             if (menuItem === '랜덤 주문') {
-                const settings = loadSettings();
-                const availableMenus = settings.menuList.filter(m => m !== '랜덤 주문' && m !== '스킵');
-                const randomIndex = Math.floor(Math.random() * availableMenus.length);
-                selectedRandomMenu = availableMenus[randomIndex];
-                menuItem = selectedRandomMenu;
+                // 이미 선택된 랜덤 메뉴가 있으면 사용, 없으면 새로 선택
+                if (currentRandomMenu) {
+                    selectedRandomMenu = currentRandomMenu;
+                    menuItem = currentRandomMenu;
+                } else {
+                    const settings = loadSettings();
+                    const availableMenus = settings.menuList.filter(m => m !== '랜덤 주문' && m !== '스킵');
+                    const randomIndex = Math.floor(Math.random() * availableMenus.length);
+                    selectedRandomMenu = availableMenus[randomIndex];
+                    menuItem = selectedRandomMenu;
+                }
             }
 
             const orders = loadOrders();
@@ -1235,9 +1255,14 @@
             document.getElementById('customMenu').value = '';
             document.querySelectorAll('.menu-option').forEach(opt => {
                 opt.classList.remove('selected');
+                // 랜덤 주문 버튼 텍스트 원래대로 복원
+                if (opt.textContent.includes('랜덤 주문')) {
+                    opt.innerHTML = '랜덤 주문';
+                }
             });
             selectedMenu = null;
             selectedSideMenu = null;
+            currentRandomMenu = null;
         }
 
         function addGuest() {
