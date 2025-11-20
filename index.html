@@ -707,6 +707,14 @@
                     <!-- 직원별 주문 상태가 표시됩니다 -->
                 </div>
 
+                <!-- 손님 추가 -->
+                <div class="guest-section">
+                    <h3 style="color: #ff9800;">🎯 손님 추가 / Добавить гостей</h3>
+                    <p style="margin: 10px 0; color: #666;">외부 손님이 있을 경우 추가하세요</p>
+                    <div class="guest-list" id="guestList"></div>
+                    <button class="btn btn-warning btn-small" onclick="addGuest()">+ 손님 추가</button>
+                </div>
+
                 <!-- WhatsApp 전송용 텍스트 (식당용) -->
                 <div class="whatsapp-output" style="margin-top: 30px;">
                     <h3 style="color: #4caf50; margin-bottom: 15px;">📱 WhatsApp 전송용 텍스트 (식당용)</h3>
@@ -717,14 +725,6 @@
                     <button class="btn btn-success btn-full" onclick="sendToRestaurant()" style="margin-top: 10px;">
                         🍽️ 식당으로 전송하기 / Отправить в ресторан
                     </button>
-                </div>
-
-                <!-- 손님 추가 -->
-                <div class="guest-section">
-                    <h3 style="color: #ff9800;">🎯 손님 추가 / Добавить гостей</h3>
-                    <p style="margin: 10px 0; color: #666;">외부 손님이 있을 경우 추가하세요</p>
-                    <div class="guest-list" id="guestList"></div>
-                    <button class="btn btn-warning btn-small" onclick="addGuest()">+ 손님 추가</button>
                 </div>
 
                 <!-- 직원별 선호 메뉴 통계 -->
