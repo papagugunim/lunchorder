@@ -245,6 +245,52 @@
             border-color: #757575;
         }
 
+        .menu-option.random {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-option.random::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .menu-option.random:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .menu-option.spinning {
+            animation: spin 0.15s ease-in-out;
+        }
+
+        @keyframes spin {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
         .btn {
             padding: 16px 35px;
             border: none;
@@ -1212,8 +1258,11 @@
             container.innerHTML = '';
             settings.menuList.forEach(menu => {
                 const option = document.createElement('div');
-                option.className = 'menu-option' + (menu === '스킵' ? ' skip' : '');
-                option.textContent = menu;
+                let className = 'menu-option';
+                if (menu === '스킵') className += ' skip';
+                if (menu === '랜덤 주문') className += ' random';
+                option.className = className;
+                option.textContent = menu === '랜덤 주문' ? '🎰 랜덤 주문' : menu;
                 option.onclick = () => selectMenu(menu, option, 'main');
                 container.appendChild(option);
             });
@@ -1245,8 +1294,45 @@
         let selectedSideMenu = null;
         let selectedTakeoutMenu = null;
         let currentRandomMenu = null; // 현재 선택된 랜덤 메뉴
+        let isSpinning = false; // 슬롯머신 애니메이션 중인지 확인
 
-        function selectMenu(menu, element, type) {
+        // 슬롯머신 애니메이션 함수
+        async function spinSlotMachine(element) {
+            if (isSpinning) return; // 이미 실행 중이면 무시
+            isSpinning = true;
+
+            const settings = loadSettings();
+            const availableMenus = settings.menuList.filter(m => m !== '랜덤 주문' && m !== '스킵');
+
+            // 총 스핀 횟수 (점점 느려짐)
+            const spinTimes = [100, 100, 120, 140, 160, 200, 250];
+
+            element.classList.add('spinning');
+            element.innerHTML = '🎰 돌리는 중...';
+
+            for (let i = 0; i < spinTimes.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, spinTimes[i]));
+                const randomIndex = Math.floor(Math.random() * availableMenus.length);
+                element.innerHTML = `🎰 ${availableMenus[randomIndex]}`;
+                element.classList.add('spinning');
+
+                // 애니메이션 클래스 제거 후 다시 추가 (리플레이)
+                setTimeout(() => element.classList.remove('spinning'), 100);
+            }
+
+            // 최종 메뉴 선택
+            const finalIndex = Math.floor(Math.random() * availableMenus.length);
+            currentRandomMenu = availableMenus[finalIndex];
+
+            await new Promise(resolve => setTimeout(resolve, 300));
+            element.innerHTML = `🎉 ${currentRandomMenu}`;
+            element.classList.add('selected');
+
+            isSpinning = false;
+            return currentRandomMenu;
+        }
+
+        async function selectMenu(menu, element, type) {
             if (type === 'main') {
                 document.querySelectorAll('#menuOptions .menu-option').forEach(opt => {
                     opt.classList.remove('selected');
@@ -1254,15 +1340,9 @@
                 element.classList.add('selected');
                 selectedMenu = menu;
 
-                // 랜덤 주문 클릭 시 즉시 랜덤 메뉴 선택
+                // 랜덤 주문 클릭 시 슬롯머신 애니메이션 실행
                 if (menu === '랜덤 주문') {
-                    const settings = loadSettings();
-                    const availableMenus = settings.menuList.filter(m => m !== '랜덤 주문' && m !== '스킵');
-                    const randomIndex = Math.floor(Math.random() * availableMenus.length);
-                    currentRandomMenu = availableMenus[randomIndex];
-
-                    // 버튼 텍스트 업데이트
-                    element.innerHTML = `랜덤 주문<br><span style="font-size: 0.9em; color: #FFB6C1;">→ ${currentRandomMenu}</span>`;
+                    await spinSlotMachine(element);
                 } else {
                     currentRandomMenu = null;
                 }
@@ -1382,8 +1462,8 @@
             document.querySelectorAll('.menu-option').forEach(opt => {
                 opt.classList.remove('selected');
                 // 랜덤 주문 버튼 텍스트 원래대로 복원
-                if (opt.textContent.includes('랜덤 주문')) {
-                    opt.innerHTML = '랜덤 주문';
+                if (opt.textContent.includes('랜덤 주문') || opt.textContent.includes('🎰') || opt.textContent.includes('🎉')) {
+                    opt.innerHTML = '🎰 랜덤 주문';
                 }
             });
             selectedMenu = null;
