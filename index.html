@@ -634,40 +634,40 @@
         <div id="employee" class="tab-content active">
             <div class="card">
                 <div class="form-group">
-                    <label>이름 / Имя</label>
+                    <label>이름</label>
                     <select id="userName" onchange="loadUserInfo()">
-                        <option value="">선택하세요 / Выберите</option>
+                        <option value="">선택하세요</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>기본 메뉴 선택 (필수) / Основное меню (обязательно)</label>
+                    <label>기본 메뉴 선택 (필수)</label>
                     <div class="menu-options" id="menuOptions">
                         <!-- 메뉴 옵션들이 여기에 동적으로 추가됩니다 -->
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>직접 입력 (선택사항) / Ввод вручную</label>
+                    <label>직접 입력 (선택사항)</label>
                     <input type="text" id="customMenu" placeholder="메뉴를 직접 입력하세요">
                 </div>
 
                 <div class="form-group">
-                    <label>사이드 메뉴 (선택사항) / Гарнир (по желанию)</label>
+                    <label>사이드 메뉴 (선택사항)</label>
                     <div class="menu-options" id="sideMenuOptions">
                         <!-- 사이드 메뉴 옵션들이 여기에 동적으로 추가됩니다 -->
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>포장 메뉴 (선택사항) / На вынос (по желанию)</label>
+                    <label>포장 메뉴 (선택사항)</label>
                     <div class="menu-options" id="takeoutMenuOptions">
                         <!-- 포장 메뉴 옵션들이 여기에 동적으로 추가됩니다 -->
                     </div>
                 </div>
 
                 <button class="btn btn-primary btn-full" onclick="submitOrder()" id="submitBtn">
-                    주문하기 / Заказать
+                    주문하기
                 </button>
 
                 <div class="success-message" id="orderSuccess" style="margin-top: 20px;">
@@ -1186,7 +1186,7 @@
             `).join('');
 
             const userSelect = document.getElementById('userName');
-            userSelect.innerHTML = '<option value="">선택하세요 / Выберите</option>' +
+            userSelect.innerHTML = '<option value="">선택하세요</option>' +
                 settings.employees.filter(e => e.isActive).map(emp =>
                     `<option value="${emp.name}">${emp.name}</option>`
                 ).join('');
