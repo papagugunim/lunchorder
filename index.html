@@ -659,6 +659,13 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label>포장 메뉴 (선택사항) / На вынос (по желанию)</label>
+                    <div class="menu-options" id="takeoutMenuOptions">
+                        <!-- 포장 메뉴 옵션들이 여기에 동적으로 추가됩니다 -->
+                    </div>
+                </div>
+
                 <button class="btn btn-primary btn-full" onclick="submitOrder()" id="submitBtn">
                     주문하기 / Заказать
                 </button>
@@ -782,6 +789,11 @@
                     <textarea id="sideMenuList" rows="5" placeholder="김밥 (Кимбап)&#10;공기밥 (Рис)&#10;..."></textarea>
                 </div>
 
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>포장 메뉴 목록 (한 줄에 하나씩)</label>
+                    <textarea id="takeoutMenuList" rows="5" placeholder="김밥(포장) (Кимбап (на вынос))&#10;공기밥(포장) (Рис (на вынос))&#10;..."></textarea>
+                </div>
+
                 <button class="btn btn-primary btn-full" onclick="saveSettings()">
                     💾 설정 저장
                 </button>
@@ -811,8 +823,8 @@
             '광어매운탕': 'Острый суп с палтусом',
             '도가니탕': 'Доганитан',
             '알탕': 'Альтан',
-            '돈가스정식': 'Сет с тонкацу',
-            '삼겹살정식': 'Сет с самгёпсаль',
+            '돈가스정식': 'Донкасс',
+            '삼겹살정식': 'Самгепсаль+Рис',
             '제육볶음': 'Чеюк поккым',
             '떡만두국': 'Ттокмандугук',
             '육계장': 'Юккеджан',
@@ -858,7 +870,12 @@
 
         // 사이드 메뉴 목록 (한글만 저장)
         const DEFAULT_SIDE_MENUS = [
-            '김밥', '김밥(포장)', '공기밥', '공기밥(포장)'
+            '김밥', '공기밥'
+        ];
+
+        // 포장 메뉴 목록
+        const DEFAULT_TAKEOUT_MENUS = [
+            '김밥(포장)', '공기밥(포장)'
         ];
 
         const STORAGE_KEYS = {
@@ -923,20 +940,29 @@
                 if (data.status === 'success' && data.orders) {
                     // 구글 시트의 데이터를 LocalStorage에 동기화
                     const syncedOrders = data.orders.map(order => {
-                        // 메뉴에서 기본메뉴와 사이드메뉴 분리
+                        // 메뉴에서 기본메뉴, 사이드메뉴, 포장메뉴 분리
                         let mainMenu = order.menu;
                         let sideMenu = '';
+                        let takeoutMenu = '';
 
                         if (order.menu && order.menu.includes(' + ')) {
                             const parts = order.menu.split(' + ');
                             mainMenu = parts[0];
-                            sideMenu = parts[1] || '';
+                            // 두 번째 부분이 포장인지 사이드인지 확인
+                            for (let i = 1; i < parts.length; i++) {
+                                if (parts[i].includes('(포장)')) {
+                                    takeoutMenu = parts[i];
+                                } else {
+                                    sideMenu = parts[i];
+                                }
+                            }
                         }
 
                         return {
                             user: order.user,
                             menu: mainMenu,
                             sideMenu: sideMenu,
+                            takeoutMenu: takeoutMenu,
                             time: order.time,
                             timestamp: new Date(order.date + ' ' + order.time).getTime(),
                             isGuest: order.isGuest
@@ -1024,6 +1050,7 @@
                 reminderMinutes: settings.reminderMinutes || 30,
                 menuList: settings.menuList || DEFAULT_MENUS,
                 sideMenuList: settings.sideMenuList || DEFAULT_SIDE_MENUS,
+                takeoutMenuList: settings.takeoutMenuList || DEFAULT_TAKEOUT_MENUS,
                 employees: settings.employees || DEFAULT_EMPLOYEES,
                 googleSheetUrl: settings.googleSheetUrl || DEFAULT_GOOGLE_SHEET_URL
             };
@@ -1050,6 +1077,7 @@
                 reminderMinutes: parseInt(document.getElementById('reminderMinutes').value),
                 menuList: document.getElementById('menuList').value.split('\n').filter(m => m.trim()).map(extractKorean),
                 sideMenuList: document.getElementById('sideMenuList').value.split('\n').filter(m => m.trim()).map(extractKorean),
+                takeoutMenuList: document.getElementById('takeoutMenuList').value.split('\n').filter(m => m.trim()).map(extractKorean),
                 employees: employees,
                 googleSheetUrl: document.getElementById('googleSheetUrl').value.trim() || DEFAULT_GOOGLE_SHEET_URL
             };
@@ -1107,8 +1135,14 @@
                 return russian ? `${menu} (${russian.split(' ')[0]})` : menu;
             });
 
+            const takeoutMenuListWithRussian = settings.takeoutMenuList.map(menu => {
+                const russian = MENU_TRANSLATIONS[menu];
+                return russian ? `${menu} (${russian.split(' ')[0]})` : menu;
+            });
+
             document.getElementById('menuList').value = menuListWithRussian.join('\n');
             document.getElementById('sideMenuList').value = sideMenuListWithRussian.join('\n');
+            document.getElementById('takeoutMenuList').value = takeoutMenuListWithRussian.join('\n');
             document.getElementById('deadlineTime').textContent = settings.deadline;
             document.getElementById('googleSheetUrl').value = settings.googleSheetUrl;
 
@@ -1167,10 +1201,22 @@
                 option.onclick = () => selectMenu(menu, option, 'side');
                 sideContainer.appendChild(option);
             });
+
+            // 포장 메뉴 렌더링
+            const takeoutContainer = document.getElementById('takeoutMenuOptions');
+            takeoutContainer.innerHTML = '';
+            settings.takeoutMenuList.forEach(menu => {
+                const option = document.createElement('div');
+                option.className = 'menu-option takeout-menu-option';
+                option.textContent = menu;
+                option.onclick = () => selectMenu(menu, option, 'takeout');
+                takeoutContainer.appendChild(option);
+            });
         }
 
         let selectedMenu = null;
         let selectedSideMenu = null;
+        let selectedTakeoutMenu = null;
         let currentRandomMenu = null; // 현재 선택된 랜덤 메뉴
 
         function selectMenu(menu, element, type) {
@@ -1209,6 +1255,19 @@
                 } else {
                     element.classList.add('selected');
                     selectedSideMenu = menu;
+                }
+            } else if (type === 'takeout') {
+                const alreadySelected = element.classList.contains('selected');
+                document.querySelectorAll('#takeoutMenuOptions .menu-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+
+                if (alreadySelected) {
+                    // 이미 선택된 메뉴를 다시 클릭하면 선택 해제
+                    selectedTakeoutMenu = null;
+                } else {
+                    element.classList.add('selected');
+                    selectedTakeoutMenu = menu;
                 }
             }
         }
@@ -1253,6 +1312,7 @@
                 user: userName,
                 menu: menuItem,
                 sideMenu: selectedSideMenu || '',
+                takeoutMenu: selectedTakeoutMenu || '',
                 time: now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
                 timestamp: now.getTime(),
                 isGuest: false
@@ -1268,7 +1328,9 @@
 
             // 구글 시트로 데이터 전송
             const today = new Date().toISOString().split('T')[0];
-            const fullMenu = menuItem + (selectedSideMenu ? ' + ' + selectedSideMenu : '');
+            let fullMenu = menuItem;
+            if (selectedSideMenu) fullMenu += ' + ' + selectedSideMenu;
+            if (selectedTakeoutMenu) fullMenu += ' + ' + selectedTakeoutMenu;
             sendToGoogleSheet({
                 date: today,
                 user: userName,
@@ -1299,6 +1361,7 @@
             });
             selectedMenu = null;
             selectedSideMenu = null;
+            selectedTakeoutMenu = null;
             currentRandomMenu = null;
         }
 
@@ -1430,8 +1493,8 @@
                 let itemClass = 'not-ordered';
 
                 if (order) {
-                    // 메인이 스킵이고 사이드 메뉴가 없는 경우만 진짜 스킵
-                    if (order.menu === '스킵' && !order.sideMenu) {
+                    // 메인이 스킵이고 사이드/포장 메뉴가 없는 경우만 진짜 스킵
+                    if (order.menu === '스킵' && !order.sideMenu && !order.takeoutMenu) {
                         status = 'skip';
                         statusText = '스킵';
                         statusClass = 'status-skip';
@@ -1441,11 +1504,16 @@
                         status = 'ordered';
                         statusText = '주문완료';
                         statusClass = 'status-ordered';
-                        // 메인이 스킵이고 사이드가 있으면 사이드만 표시
-                        if (order.menu === '스킵' && order.sideMenu) {
-                            menuText = order.sideMenu;
+                        // 메인이 스킵이고 사이드나 포장이 있으면 그것들만 표시
+                        if (order.menu === '스킵') {
+                            let parts = [];
+                            if (order.sideMenu) parts.push(order.sideMenu);
+                            if (order.takeoutMenu) parts.push(order.takeoutMenu);
+                            menuText = parts.join(' + ');
                         } else {
-                            menuText = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                            menuText = order.menu;
+                            if (order.sideMenu) menuText += ' + ' + order.sideMenu;
+                            if (order.takeoutMenu) menuText += ' + ' + order.takeoutMenu;
                         }
                         itemClass = 'ordered';
                     }
@@ -1534,10 +1602,17 @@
         function updateAdminView() {
             const orders = loadOrders();
 
-            // 스킵: 메인이 스킵이고 사이드 메뉴가 없는 경우만
-            const skipOrders = orders.filter(o => o.menu === '스킵' && !o.sideMenu);
-            // 식사 주문: 메인이 스킵이 아니거나, 사이드 메뉴가 있는 경우
-            const activeOrders = orders.filter(o => o.menu !== '스킵' || o.sideMenu);
+            // 스킵: 메인이 스킵이고 사이드/포장 메뉴가 없는 경우만
+            const skipOrders = orders.filter(o => o.menu === '스킵' && !o.sideMenu && !o.takeoutMenu);
+            // 식사 주문: 메인이 스킵이 아니거나, 사이드 메뉴가 있는 경우 (포장만 있는 경우는 제외)
+            const activeOrders = orders.filter(o => {
+                // 메인이 있는 경우 (스킵이 아닌 경우)
+                if (o.menu !== '스킵') return true;
+                // 메인이 스킵이고 사이드 메뉴가 있으면 식사 인원에 포함
+                if (o.sideMenu) return true;
+                // 메인이 스킵이고 포장만 있는 경우는 식사 인원에서 제외
+                return false;
+            });
             const guestOrders = orders.filter(o => o.isGuest);
 
             document.getElementById('totalOrders').textContent = orders.length;
@@ -1554,16 +1629,24 @@
                 if (order.menu === '스킵' && order.sideMenu) {
                     fullMenu = order.sideMenu;
                 } else {
-                    fullMenu = order.menu + (order.sideMenu ? ' + ' + order.sideMenu : '');
+                    fullMenu = order.menu;
+                    if (order.sideMenu) fullMenu += ' + ' + order.sideMenu;
                 }
                 menuCount[fullMenu] = (menuCount[fullMenu] || 0) + 1;
             });
 
-            generateWhatsAppText(activeOrders, menuCount);
+            // 포장 메뉴는 별도로 집계 (식사 인원에는 포함되지 않음)
+            const takeoutCount = {};
+            orders.filter(o => o.takeoutMenu).forEach(order => {
+                const menu = order.takeoutMenu;
+                takeoutCount[menu] = (takeoutCount[menu] || 0) + 1;
+            });
+
+            generateWhatsAppText(activeOrders, menuCount, takeoutCount);
             updateEmployeePreferences();
         }
 
-        function generateWhatsAppText(activeOrders, menuCount) {
+        function generateWhatsAppText(activeOrders, menuCount, takeoutCount) {
             const today = new Date();
             const dateKR = today.toLocaleDateString('ko-KR', {
                 year: 'numeric',
@@ -1598,6 +1681,17 @@
                     }
                     text += `• ${menu} (${menuRU}) - ${count} шт.\n`;
                 });
+
+            // 포장 메뉴 섹션 (있을 경우만)
+            if (Object.keys(takeoutCount).length > 0) {
+                text += `\n📦 포장 / На вынос:\n`;
+                Object.entries(takeoutCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([menu, count]) => {
+                        const menuRU = MENU_TRANSLATIONS[menu] || menu;
+                        text += `• ${menu} (${menuRU}) - ${count} шт.\n`;
+                    });
+            }
 
             text += `\n🍫 Лотте КФ Рус\n`;
 
