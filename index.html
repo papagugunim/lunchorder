@@ -920,6 +920,33 @@
             }
         }
 
+        // 구글 시트에서 전체 주문 내역 가져오기 (통계용)
+        async function getAllOrdersFromGoogleSheet() {
+            const settings = loadSettings();
+            const googleSheetUrl = settings.googleSheetUrl;
+
+            if (!googleSheetUrl) {
+                console.log('구글 시트 URL이 설정되지 않았습니다.');
+                return [];
+            }
+
+            try {
+                const response = await fetch(googleSheetUrl + '?action=getAllOrders', {
+                    method: 'GET'
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success' && data.orders) {
+                    return data.orders;
+                }
+            } catch (error) {
+                console.error('전체 주문 내역 가져오기 오류:', error);
+            }
+
+            return [];
+        }
+
         // 구글 시트에서 데이터 가져오기
         async function syncFromGoogleSheet() {
             const settings = loadSettings();
@@ -1385,7 +1412,7 @@
             guestList.appendChild(guestDiv);
         }
 
-        function saveGuest(id) {
+        async function saveGuest(id) {
             const name = document.getElementById(`guestName${id}`).value.trim();
             const menu = document.getElementById(`guestMenu${id}`).value;
             const custom = document.getElementById(`guestCustom${id}`).value.trim();
@@ -1426,7 +1453,7 @@
 
             alert(`${name} 손님의 주문이 추가되었습니다!`);
             document.getElementById('guestList').innerHTML = '';
-            updateAdminView();
+            await updateAdminView();
         }
 
         function loadOrders() {
@@ -1599,7 +1626,7 @@
             });
         }
 
-        function updateAdminView() {
+        async function updateAdminView() {
             const orders = loadOrders();
 
             // 스킵: 메인이 스킵이고 사이드/포장 메뉴가 없는 경우만
@@ -1643,7 +1670,7 @@
             });
 
             generateWhatsAppText(activeOrders, menuCount, takeoutCount);
-            updateEmployeePreferences();
+            await updateEmployeePreferences();
         }
 
         function generateWhatsAppText(activeOrders, menuCount, takeoutCount) {
@@ -1715,54 +1742,73 @@
             }
         }
 
-        function updateEmployeePreferences() {
-            // localStorage에서 과거 모든 주문 내역 가져오기
-            const allOrders = JSON.parse(localStorage.getItem('allOrderHistory') || '[]');
-            const employees = loadSettings().employees;
-
+        async function updateEmployeePreferences() {
             const preferencesDiv = document.getElementById('employeePreferences');
+
+            // 로딩 표시
+            preferencesDiv.innerHTML = '<div class="empty-state">📊<br>통계를 불러오는 중...</div>';
+
+            // 구글 시트에서 전체 주문 내역 가져오기
+            const allOrders = await getAllOrdersFromGoogleSheet();
+            const employees = loadSettings().employees;
 
             if (allOrders.length === 0) {
                 preferencesDiv.innerHTML = '<div class="empty-state">📭<br>아직 주문 내역이 없습니다</div>';
                 return;
             }
 
-            // 직원별 메뉴 카운트
-            const employeeMenuCount = {};
+            // 직원별 메뉴 카운트 및 총 주문 횟수
+            const employeeStats = {};
             employees.forEach(emp => {
-                employeeMenuCount[emp.name] = {};
+                employeeStats[emp.name] = {
+                    menuCount: {},
+                    totalOrders: 0
+                };
             });
 
             allOrders.forEach(order => {
-                if (!order.isGuest && order.menu !== '스킵' && employeeMenuCount[order.user]) {
-                    const menu = order.menu;
-                    employeeMenuCount[order.user][menu] = (employeeMenuCount[order.user][menu] || 0) + 1;
+                if (!order.isGuest && order.menu !== '스킵' && employeeStats[order.user]) {
+                    // 메뉴에서 기본 메뉴만 추출 (+ 이전 부분 제거)
+                    const menu = order.menu.split(' + ')[0];
+                    employeeStats[order.user].menuCount[menu] = (employeeStats[order.user].menuCount[menu] || 0) + 1;
+                    employeeStats[order.user].totalOrders++;
                 }
             });
 
-            // 각 직원별 TOP 3 메뉴 추출
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">';
+            // 각 직원별 TOP 3 메뉴 추출 및 표시
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px;">';
 
             employees.forEach(emp => {
-                const menuStats = employeeMenuCount[emp.name];
-                const sortedMenus = Object.entries(menuStats)
+                const stats = employeeStats[emp.name];
+                const sortedMenus = Object.entries(stats.menuCount)
                     .sort((a, b) => b[1] - a[1])
                     .slice(0, 3);
 
+                const totalOrders = stats.totalOrders;
+
                 html += `
-                    <div class="card" style="padding: 15px; background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);">
-                        <h4 style="color: #ED1C24; margin-bottom: 10px;">${emp.name}</h4>
+                    <div class="card" style="padding: 15px; background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%); border: 2px solid #ED1C24;">
+                        <h4 style="color: #ED1C24; margin-bottom: 5px; font-size: 1.1rem;">${emp.name}</h4>
+                        <p style="color: #666; font-size: 0.85rem; margin-bottom: 12px;">총 ${totalOrders}회 주문</p>
                 `;
 
                 if (sortedMenus.length === 0) {
-                    html += '<p style="color: #999; font-size: 0.9rem;">주문 내역 없음</p>';
+                    html += '<p style="color: #999; font-size: 0.9rem; text-align: center; padding: 20px;">주문 내역 없음</p>';
                 } else {
                     sortedMenus.forEach(([menu, count], index) => {
                         const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
+                        const percentage = totalOrders > 0 ? Math.round((count / totalOrders) * 100) : 0;
+                        const barWidth = percentage;
+
                         html += `
-                            <div style="padding: 8px; margin: 5px 0; background: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                                <span>${medal} ${menu}</span>
-                                <span style="background: #ED1C24; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">${count}회</span>
+                            <div style="margin: 8px 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <span style="font-weight: 600; font-size: 0.95rem;">${medal} ${menu}</span>
+                                    <span style="background: #ED1C24; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">${count}회 (${percentage}%)</span>
+                                </div>
+                                <div style="background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, #ED1C24, #ff6b6b); height: 100%; width: ${barWidth}%; transition: width 0.5s ease;"></div>
+                                </div>
                             </div>
                         `;
                     });
@@ -1799,7 +1845,7 @@
             }
         }
 
-        function switchTab(tabName) {
+        async function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -1811,9 +1857,8 @@
             event.target.classList.add('active');
 
             if (tabName === 'admin') {
-                syncFromGoogleSheet().then(() => {
-                    updateAdminView();
-                });
+                await syncFromGoogleSheet();
+                await updateAdminView();
             }
         }
 
