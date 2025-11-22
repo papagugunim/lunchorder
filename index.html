@@ -1525,6 +1525,10 @@
                 // 랜덤 주문 클릭 시 슬롯머신 애니메이션 실행
                 if (menu === '랜덤 주문') {
                     await spinSlotMachine(element);
+                    // 슬롯머신으로 선택된 메뉴를 selectedMenu에 반영
+                    if (currentRandomMenu) {
+                        selectedMenu = currentRandomMenu;
+                    }
                 } else {
                     currentRandomMenu = null;
                 }
