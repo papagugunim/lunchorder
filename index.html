@@ -573,10 +573,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 18px;
+            padding: 12px;
             border: 2px solid #f0f0f0;
             border-radius: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             transition: all 0.3s;
             gap: 12px;
         }
@@ -606,20 +606,20 @@
 
         .employee-name {
             font-weight: 700;
-            font-size: 1.15rem;
+            font-size: 1rem;
             color: #333;
         }
 
         .employee-phone {
             color: #666;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             margin-top: 4px;
         }
 
         .employee-status {
-            padding: 8px 20px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
         }
 
@@ -917,7 +917,7 @@
             '해물볶음면': 'Хемуль покым мен',
             '짜장면': 'Чадян мен',
             '해물순두부찌개': 'Хемуль сунтубу',
-            '김치순두부': 'Кимчи сунтубу',
+            '김치순두부찌개': 'Кимчи сунтубу',
             '된장찌개': 'Тэндян тиге свинина',
             '해물된장찌개': 'Тэндян тиге хемуль',
             '고등어조림': 'Скумбрия тушёная',
@@ -971,7 +971,7 @@
         // 기본 메뉴 목록 (한글만 저장)
         // 카테고리별 메뉴 구조
         const MENU_CATEGORIES = {
-            '국물류': ['순대국', '갈비탕', '설렁탕', '해물순두부찌개', '김치순두부', '된장찌개', '해물된장찌개', '명가해장국', '광어매운탕', '도가니탕', '알탕', '감자탕뚝배기', '떡만두국', '육계장', '김치찌개'],
+            '국물류': ['순대국', '갈비탕', '설렁탕', '해물순두부찌개', '김치순두부찌개', '된장찌개', '해물된장찌개', '명가해장국', '광어매운탕', '도가니탕', '알탕', '감자탕뚝배기', '떡만두국', '육계장', '김치찌개'],
             '고기류': ['뚝배기불고기', '삼겹살정식', '돈가스정식'],
             '생선류': ['고등어조림', '고등어구이'],
             '밥류': ['짬뽕밥', '차돌짬뽕밥', '해물볶음밥', '소고기볶음밥', '새우볶음밥', '잡채밥', '비빔밥', '돌솥비빔밥', '김치볶음밥'],
@@ -1486,8 +1486,8 @@
 
             const availableMenus = DEFAULT_MENUS.filter(m => m !== '랜덤 주문' && m !== '스킵');
 
-            // 총 스핀 횟수 (점점 느려짐)
-            const spinTimes = [100, 100, 120, 140, 160, 200, 250];
+            // 총 스핀 횟수 (점점 느려짐) - 30% 빠른 속도
+            const spinTimes = [70, 70, 84, 98, 112, 140, 175];
 
             element.classList.add('spinning');
             element.innerHTML = '🎰 돌리는 중...';
@@ -1506,7 +1506,7 @@
             const finalIndex = Math.floor(Math.random() * availableMenus.length);
             currentRandomMenu = availableMenus[finalIndex];
 
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 210));
             element.innerHTML = `🎉 ${currentRandomMenu}`;
             element.classList.add('selected');
 
@@ -2046,49 +2046,52 @@
                 }
             });
 
-            // 각 직원별 TOP 3 메뉴 추출 및 표시
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px;">';
+            // 각 직원별 TOP 3 메뉴 추출 및 표시 (테이블 형식)
+            let html = `
+                <table style="width: 100%; border-collapse: collapse; background: #ffffff; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+                    <thead>
+                        <tr style="background: #f8f8f8; border-bottom: 2px solid #e0e0e0;">
+                            <th style="padding: 12px; text-align: left; font-weight: 600; color: #333; width: 120px;">직원</th>
+                            <th style="padding: 12px; text-align: left; font-weight: 600; color: #333;">선호 메뉴 TOP 3</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
 
-            employees.forEach(emp => {
+            employees.forEach((emp, index) => {
                 const stats = employeeStats[emp.name];
                 const sortedMenus = Object.entries(stats.menuCount)
                     .sort((a, b) => b[1] - a[1])
                     .slice(0, 3);
 
                 const totalOrders = stats.totalOrders;
+                const rowBg = index % 2 === 0 ? '#ffffff' : '#fafafa';
 
                 html += `
-                    <div class="card" style="padding: 15px; background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%); border: 2px solid #ED1C24;">
-                        <h4 style="color: #ED1C24; margin-bottom: 5px; font-size: 1.1rem;">${emp.name}</h4>
-                        <p style="color: #666; font-size: 0.85rem; margin-bottom: 12px;">총 ${totalOrders}회 주문</p>
+                    <tr style="background: ${rowBg}; border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 12px; font-weight: 600; color: #333;">${emp.name}</td>
+                        <td style="padding: 12px; color: #444;">
                 `;
 
                 if (sortedMenus.length === 0) {
-                    html += '<p style="color: #999; font-size: 0.9rem; text-align: center; padding: 20px;">주문 내역 없음</p>';
+                    html += '<span style="color: #999;">주문 내역 없음</span>';
                 } else {
-                    sortedMenus.forEach(([menu, count], index) => {
-                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
-                        const percentage = totalOrders > 0 ? Math.round((count / totalOrders) * 100) : 0;
-                        const barWidth = percentage;
-
-                        html += `
-                            <div style="margin: 8px 0;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                    <span style="font-weight: 600; font-size: 0.95rem;">${medal} ${menu}</span>
-                                    <span style="background: #ED1C24; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">${count}회 (${percentage}%)</span>
-                                </div>
-                                <div style="background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
-                                    <div style="background: linear-gradient(90deg, #ED1C24, #ff6b6b); height: 100%; width: ${barWidth}%; transition: width 0.5s ease;"></div>
-                                </div>
-                            </div>
-                        `;
+                    sortedMenus.forEach(([menu, count], idx) => {
+                        const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+                        html += `<span style="margin-right: 12px; white-space: nowrap; font-size: 0.9rem;">${medal} ${menu}</span>`;
                     });
                 }
 
-                html += '</div>';
+                html += `
+                        </td>
+                    </tr>
+                `;
             });
 
-            html += '</div>';
+            html += `
+                    </tbody>
+                </table>
+            `;
             preferencesDiv.innerHTML = html;
         }
 
