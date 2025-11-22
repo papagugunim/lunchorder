@@ -851,16 +851,16 @@
         // 메뉴 러시아어 번역
         const MENU_TRANSLATIONS = {
             '랜덤 주문': 'Случайный выбор (Random)',
-            '순대국': 'Сундэгук (Sundaeguk)',
+            '순대국': 'Сундэ кук паб',
             '갈비탕': 'Кальбитан (Kalbitang)',
             '짬뽕밥': 'Чампонбап (Jjamppongbap)',
             '짬뽕면': 'Чампонмён (Jjamppong)',
-            '해물순두부': 'Сундубу с морепродуктами',
+            '해물순두부': 'Хемуль сунтубу',
             '순두부찌개': 'Сундубу ччигэ',
             '고등어조림': 'Скумбрия тушёная',
             '고등어구이': 'Скумбрия жареная',
-            '해물볶음밥': 'Боккымбап с морепродуктами',
-            '명가해장국': 'Мёнга хэджангук',
+            '해물볶음밥': 'Хемуль покым паб',
+            '명가해장국': 'Хедян кук',
             '잡채밥': 'Чапчебап',
             '비빔밥': 'Пибимпап',
             '돌솥비빔밥': 'Пибимпап в камне',
@@ -2030,12 +2030,42 @@
             document.getElementById('currentDateTime').textContent = dateTimeText;
         }
 
-        // 모스크바 날씨 정보 가져오기
+        // 모스크바 날씨 정보 가져오기 (캐싱 최적화)
         async function updateWeather() {
+            const CACHE_KEY = 'weather_cache';
+            const CACHE_DURATION = 30 * 60 * 1000; // 30분
+
+            // 1️⃣ 먼저 캐시된 날씨 정보가 있으면 즉시 표시
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            if (cachedData) {
+                try {
+                    const { weatherText, timestamp } = JSON.parse(cachedData);
+                    const isExpired = Date.now() - timestamp > CACHE_DURATION;
+
+                    // 캐시가 유효하면 즉시 표시
+                    if (!isExpired) {
+                        document.getElementById('weatherInfo').textContent = weatherText;
+                        return; // 캐시가 유효하면 API 호출 생략
+                    }
+
+                    // 캐시가 만료되었지만 일단 표시 (백그라운드에서 업데이트)
+                    document.getElementById('weatherInfo').textContent = weatherText;
+                } catch (e) {
+                    console.error('캐시 파싱 오류:', e);
+                }
+            }
+
+            // 2️⃣ 백그라운드에서 새로운 날씨 정보 가져오기
             try {
-                // OpenWeatherMap API 무료 버전 사용 (API 키 필요 없는 공개 데이터)
-                // wttr.in 서비스 사용 (무료, API 키 불필요)
-                const response = await fetch('https://wttr.in/Moscow?format=j1');
+                // 타임아웃 설정 (5초)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                const response = await fetch('https://wttr.in/Moscow?format=j1', {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
                 const data = await response.json();
 
                 const current = data.current_condition[0];
@@ -2046,10 +2076,22 @@
 
                 const weatherText = `🌤️ 모스크바 날씨: ${temp}°C (체감 ${feelsLike}°C) · ${weatherDesc} · 습도 ${humidity}%`;
 
+                // 화면에 표시
                 document.getElementById('weatherInfo').textContent = weatherText;
+
+                // localStorage에 캐싱
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    weatherText,
+                    timestamp: Date.now()
+                }));
             } catch (error) {
                 console.error('날씨 정보 로드 실패:', error);
-                document.getElementById('weatherInfo').textContent = '🌤️ 날씨 정보를 불러올 수 없습니다';
+
+                // 캐시가 없는 경우에만 오류 메시지 표시
+                if (!cachedData) {
+                    document.getElementById('weatherInfo').textContent = '🌤️ 날씨 정보를 불러올 수 없습니다';
+                }
+                // 캐시가 있으면 계속 캐시된 정보 표시
             }
         }
 

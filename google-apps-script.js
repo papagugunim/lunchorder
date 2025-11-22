@@ -144,6 +144,45 @@ function doGet(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    // 전체 주문 내역 가져오기 (통계용 - 모든 날짜의 주문)
+    if (action === 'getAllOrders') {
+      const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문내역');
+      const allData = sheet.getDataRange().getValues();
+      const allOrders = [];
+
+      // 헤더를 제외한 모든 데이터 처리
+      for (let i = 1; i < allData.length; i++) {
+        // 날짜 값 처리
+        let dateValue = allData[i][0];
+        let dateStr = '';
+
+        if (dateValue && dateValue.getTime) {
+          dateStr = Utilities.formatDate(dateValue, 'Europe/Moscow', 'yyyy-MM-dd');
+        } else if (typeof dateValue === 'string' && dateValue.trim()) {
+          dateStr = dateValue.trim().split('T')[0];
+        } else {
+          continue; // 날짜가 없으면 스킵
+        }
+
+        const orderData = {
+          date: dateStr,
+          user: allData[i][1],
+          menu: allData[i][2],
+          time: allData[i][3],
+          isGuest: allData[i][4] === '손님'
+        };
+
+        allOrders.push(orderData);
+      }
+
+      Logger.log(`전체 주문 ${allOrders.length}건 반환`);
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        orders: allOrders
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // 주문 가져오기 (오늘 날짜의 주문만)
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문내역');
 
