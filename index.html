@@ -315,6 +315,31 @@
             box-shadow: 0 6px 20px rgba(237, 28, 36, 0.4);
         }
 
+        .btn-primary:disabled {
+            background: #ccc;
+            color: #999;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-primary:disabled:hover {
+            background: #ccc;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 이름 선택 시각적 피드백 */
+        #userName.invalid {
+            border: 2px solid #f44336;
+            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+        }
+
+        #userName.valid {
+            border: 2px solid #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
         .btn-success {
             background: #4caf50;
             color: white;
@@ -695,7 +720,7 @@
 
                 <div class="form-group">
                     <label>직접 입력 (선택사항)</label>
-                    <input type="text" id="customMenu" placeholder="메뉴를 직접 입력하세요">
+                    <input type="text" id="customMenu" placeholder="메뉴를 직접 입력하세요" oninput="validateOrder()">
                 </div>
 
                 <div class="form-group">
@@ -712,7 +737,7 @@
                     </div>
                 </div>
 
-                <button class="btn btn-primary btn-full" onclick="submitOrder()" id="submitBtn">
+                <button class="btn btn-primary btn-full" onclick="submitOrder()" id="submitBtn" disabled>
                     주문하기
                 </button>
 
@@ -1236,10 +1261,26 @@
                 settings.employees.filter(e => e.isActive).map(emp =>
                     `<option value="${emp.name}">${emp.name}</option>`
                 ).join('');
+
+            // localStorage에서 마지막 선택한 이름 불러와서 자동 선택
+            const lastSelectedUser = localStorage.getItem('lastSelectedUser');
+            if (lastSelectedUser) {
+                userSelect.value = lastSelectedUser;
+                loadUserInfo(); // 선택된 사용자 정보 로드
+            }
         }
 
         function loadUserInfo() {
             const userName = document.getElementById('userName').value;
+
+            // localStorage에 마지막 선택한 이름 저장
+            if (userName) {
+                localStorage.setItem('lastSelectedUser', userName);
+            }
+
+            // 시각적 피드백 업데이트
+            validateOrder();
+
             if (!userName) return;
 
             const orders = loadOrders();
@@ -1248,6 +1289,71 @@
             if (userOrder && userOrder.menu !== '스킵') {
                 document.getElementById('customMenu').value = userOrder.menu;
             }
+        }
+
+        // 주문 유효성 검사 및 버튼 활성화/비활성화
+        function validateOrder() {
+            const userName = document.getElementById('userName').value;
+            const userNameSelect = document.getElementById('userName');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // 이름 선택 시각적 피드백
+            if (!userName) {
+                userNameSelect.classList.remove('valid');
+                userNameSelect.classList.add('invalid');
+            } else {
+                userNameSelect.classList.remove('invalid');
+                userNameSelect.classList.add('valid');
+            }
+
+            // 메뉴 선택 확인
+            const customMenu = document.getElementById('customMenu').value.trim();
+            const hasMenu = customMenu || selectedMenu;
+
+            // 이름과 메뉴가 모두 선택되었는지 확인
+            const isValid = userName && hasMenu;
+
+            // 버튼 활성화/비활성화 및 색상 변경
+            submitBtn.disabled = !isValid;
+
+            if (isValid) {
+                // 활성화 시 초록색
+                submitBtn.classList.remove('btn-primary');
+                submitBtn.classList.add('btn-success');
+            } else {
+                // 비활성화 시 빨간색
+                submitBtn.classList.remove('btn-success');
+                submitBtn.classList.add('btn-primary');
+            }
+
+            // 주문 미리보기 업데이트
+            updateOrderPreview();
+        }
+
+        // 주문 미리보기 업데이트 (버튼 텍스트)
+        function updateOrderPreview() {
+            const userName = document.getElementById('userName').value;
+            const customMenu = document.getElementById('customMenu').value.trim();
+            const menuItem = customMenu || selectedMenu;
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (!userName || !menuItem) {
+                submitBtn.textContent = '주문하기';
+                return;
+            }
+
+            // 주문 내용 구성 (메뉴만)
+            let orderText = menuItem;
+
+            if (selectedSideMenu) {
+                orderText += ` + ${selectedSideMenu}`;
+            }
+            if (selectedTakeoutMenu) {
+                orderText += ` + ${selectedTakeoutMenu}`;
+            }
+
+            // 버튼 텍스트에 메뉴만 표시
+            submitBtn.textContent = `${orderText} 주문하기`;
         }
 
         function renderMenuOptions() {
@@ -1377,6 +1483,9 @@
                     selectedTakeoutMenu = menu;
                 }
             }
+
+            // 메뉴 선택 시 주문 유효성 검사 및 미리보기 업데이트
+            validateOrder();
         }
 
         function submitOrder() {
@@ -1470,6 +1579,9 @@
             selectedSideMenu = null;
             selectedTakeoutMenu = null;
             currentRandomMenu = null;
+
+            // 주문 제출 후 유효성 검사 (버튼 비활성화 및 미리보기 숨김)
+            validateOrder();
         }
 
         function addGuest() {
