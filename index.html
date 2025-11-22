@@ -138,11 +138,11 @@
 
         .tab-btn {
             flex: 1;
-            padding: 18px;
+            padding: 12px;
             border: none;
             background: rgba(255,255,255,0.2);
             color: white;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
             border-radius: 12px;
@@ -875,22 +875,22 @@
                 <h3 style="margin-top: 30px; color: #ED1C24;">👥 직원 관리</h3>
                 <div id="employeeManagement"></div>
 
-                <h3 style="margin-top: 30px; color: #ED1C24;">🍱 메뉴 관리</h3>
-                <p style="margin: 10px 0; color: #666;">메뉴명과 러시아어를 함께 입력하세요 (예: 순대국 (Сундэгук))</p>
+                <h3 style="margin-top: 30px; color: #ED1C24; font-size: 1.1rem;">🍱 메뉴 관리</h3>
+                <p style="margin: 8px 0; color: #666; font-size: 0.85rem;">한글 메뉴명만 입력 (러시아어는 자동 적용)</p>
 
-                <div class="form-group" style="margin-top: 20px;">
-                    <label>메인 메뉴 목록 (한 줄에 하나씩)</label>
-                    <textarea id="menuList" rows="12" placeholder="순대국 (Сундэгук)&#10;갈비탕 (Кальбитан)&#10;..."></textarea>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="font-size: 0.9rem; font-weight: 600;">메인 메뉴 (한 줄에 하나씩)</label>
+                    <textarea id="menuList" rows="8" placeholder="순대국&#10;갈비탕&#10;김치찌개&#10;..."></textarea>
                 </div>
 
-                <div class="form-group" style="margin-top: 20px;">
-                    <label>사이드 메뉴 목록 (한 줄에 하나씩)</label>
-                    <textarea id="sideMenuList" rows="5" placeholder="김밥 (Кимбап)&#10;공기밥 (Рис)&#10;..."></textarea>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="font-size: 0.9rem; font-weight: 600;">사이드 메뉴</label>
+                    <textarea id="sideMenuList" rows="3" placeholder="김밥&#10;공기밥"></textarea>
                 </div>
 
-                <div class="form-group" style="margin-top: 20px;">
-                    <label>포장 메뉴 목록 (한 줄에 하나씩)</label>
-                    <textarea id="takeoutMenuList" rows="5" placeholder="김밥(포장) (Кимбап (на вынос))&#10;공기밥(포장) (Рис (на вынос))&#10;..."></textarea>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="font-size: 0.9rem; font-weight: 600;">포장 메뉴</label>
+                    <textarea id="takeoutMenuList" rows="3" placeholder="김밥(포장)&#10;공기밥(포장)"></textarea>
                 </div>
 
                 <button class="btn btn-primary btn-full" onclick="saveSettings()">
@@ -2120,6 +2120,15 @@
         }
 
         async function switchTab(tabName) {
+            // 설정 탭은 비밀번호 확인
+            if (tabName === 'settings') {
+                const password = prompt('관리자 비밀번호를 입력하세요:');
+                if (password !== '1234') {
+                    alert('비밀번호가 틀렸습니다.');
+                    return;
+                }
+            }
+
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
