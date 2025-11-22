@@ -204,38 +204,10 @@
         }
 
         .menu-options {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-
-        .menu-category {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .menu-category-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #666;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .menu-category-items {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 12px;
-        }
-
-        /* 사이드 메뉴와 포장 메뉴는 항상 2열 고정 */
-        #sideMenuOptions,
-        #takeoutMenuOptions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            margin-bottom: 15px;
         }
 
         .menu-option {
@@ -273,52 +245,6 @@
             border-color: #757575;
         }
 
-        .menu-option.random {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
-            font-weight: 700;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .menu-option.random::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                45deg,
-                transparent,
-                rgba(255, 255, 255, 0.3),
-                transparent
-            );
-            animation: shine 3s infinite;
-        }
-
-        @keyframes shine {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-        }
-
-        .menu-option.random:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .menu-option.spinning {
-            animation: spin 0.15s ease-in-out;
-        }
-
-        @keyframes spin {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
         .btn {
             padding: 16px 35px;
             border: none;
@@ -341,31 +267,6 @@
             background: #C8102E;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(237, 28, 36, 0.4);
-        }
-
-        .btn-primary:disabled {
-            background: #ccc;
-            color: #999;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-
-        .btn-primary:disabled:hover {
-            background: #ccc;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* 이름 선택 시각적 피드백 */
-        #userName.invalid {
-            border: 2px solid #f44336;
-            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
-        }
-
-        #userName.valid {
-            border: 2px solid #4caf50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
         }
 
         .btn-success {
@@ -678,8 +579,8 @@
                 font-size: 1.6rem;
             }
 
-            .menu-category-items {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            .menu-options {
+                grid-template-columns: 1fr;
             }
 
             .admin-controls {
@@ -705,17 +606,6 @@
             </div>
             <h1>🍱 롯데제과 러시아법인<br>점심 주문 시스템</h1>
             <div class="subtitle">Система заказа обедов | Lunch Order System <span style="font-size: 0.75em; color: #999; margin-left: 8px;">v0.2</span></div>
-
-            <!-- 날짜/시간 정보 -->
-            <div style="margin: 15px 0; padding: 12px; background: #f8f9fa; border-radius: 10px; font-size: 0.95rem;">
-                <div id="currentDateTime" style="color: #333; font-weight: 600; margin-bottom: 8px;">
-                    📅 --
-                </div>
-                <div id="weatherInfo" style="color: #666; font-size: 0.9rem;">
-                    🌤️ 날씨 정보 로딩 중...
-                </div>
-            </div>
-
             <div id="holidayNotice"></div>
             <div class="deadline-info" id="deadlineInfo">
                 마감: <span id="deadlineTime">12:20</span> |
@@ -725,7 +615,7 @@
 
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('employee')">주문하기</button>
-            <button class="tab-btn" onclick="switchTab('admin')">주문현황</button>
+            <button class="tab-btn" onclick="switchTab('admin')">관리자</button>
             <button class="tab-btn" onclick="switchTab('settings')">설정</button>
         </div>
 
@@ -733,40 +623,26 @@
         <div id="employee" class="tab-content active">
             <div class="card">
                 <div class="form-group">
-                    <label>이름</label>
+                    <label>이름 / Имя</label>
                     <select id="userName" onchange="loadUserInfo()">
-                        <option value="">선택하세요</option>
+                        <option value="">선택하세요 / Выберите</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>기본 메뉴 선택 (필수)</label>
+                    <label>메뉴 선택 / Выбор меню</label>
                     <div class="menu-options" id="menuOptions">
                         <!-- 메뉴 옵션들이 여기에 동적으로 추가됩니다 -->
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>직접 입력 (선택사항)</label>
-                    <input type="text" id="customMenu" placeholder="메뉴를 직접 입력하세요" oninput="validateOrder()">
+                    <label>직접 입력 (선택사항) / Ввод вручную</label>
+                    <input type="text" id="customMenu" placeholder="메뉴를 직접 입력하세요">
                 </div>
 
-                <div class="form-group">
-                    <label>사이드 메뉴 (선택사항)</label>
-                    <div class="menu-options" id="sideMenuOptions">
-                        <!-- 사이드 메뉴 옵션들이 여기에 동적으로 추가됩니다 -->
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>포장 메뉴 (선택사항)</label>
-                    <div class="menu-options" id="takeoutMenuOptions">
-                        <!-- 포장 메뉴 옵션들이 여기에 동적으로 추가됩니다 -->
-                    </div>
-                </div>
-
-                <button class="btn btn-primary btn-full" onclick="submitOrder()" id="submitBtn" disabled>
-                    주문하기
+                <button class="btn btn-primary btn-full" onclick="submitOrder()" id="submitBtn">
+                    주문하기 / Заказать
                 </button>
 
                 <div class="success-message" id="orderSuccess" style="margin-top: 20px;">
@@ -799,6 +675,18 @@
                     </div>
                 </div>
 
+                <!-- WhatsApp 전송용 텍스트 (식당용) -->
+                <div class="whatsapp-output" style="margin-top: 30px;">
+                    <h3 style="color: #4caf50; margin-bottom: 15px;">📱 WhatsApp 전송용 텍스트 (식당용)</h3>
+                    <div class="whatsapp-text" id="whatsappText"></div>
+                    <button class="btn btn-success btn-full" onclick="copyToClipboard()">
+                        📋 클립보드에 복사 / Копировать
+                    </button>
+                    <button class="btn btn-success btn-full" onclick="sendToRestaurant()" style="margin-top: 10px;">
+                        🍽️ 식당으로 전송하기 / Отправить в ресторан
+                    </button>
+                </div>
+
                 <!-- 직원 주문 현황 -->
                 <h3 style="margin-top: 30px; color: #ED1C24;">👥 직원 주문 현황 & 알림</h3>
                 <p style="margin: 10px 0; color: #666;">각 직원의 주문 상태를 확인하고 미주문자에게 WhatsApp 알림을 보낼 수 있습니다</p>
@@ -814,16 +702,14 @@
                     <button class="btn btn-warning btn-small" onclick="addGuest()">+ 손님 추가</button>
                 </div>
 
-                <!-- WhatsApp 전송용 텍스트 (식당용) -->
-                <div class="whatsapp-output" style="margin-top: 30px;">
-                    <h3 style="color: #4caf50; margin-bottom: 15px;">📱 WhatsApp 전송용 텍스트 (식당용)</h3>
-                    <div class="whatsapp-text" id="whatsappText"></div>
-                    <button class="btn btn-success btn-full" onclick="copyToClipboard()">
-                        📋 클립보드에 복사 / Копировать
-                    </button>
-                    <button class="btn btn-success btn-full" onclick="sendToRestaurant()" style="margin-top: 10px;">
-                        🍽️ 식당으로 전송하기 / Отправить в ресторан
-                    </button>
+                <h3 style="margin-top: 30px; color: #ED1C24;">📋 주문 목록</h3>
+                <div class="orders-list" id="ordersList">
+                    <!-- 주문 목록이 여기에 표시됩니다 -->
+                </div>
+
+                <div class="summary-section">
+                    <h3 style="color: #ED1C24;">메뉴별 집계 / Статистика по меню</h3>
+                    <div id="menuSummary"></div>
                 </div>
 
                 <!-- 직원별 선호 메뉴 통계 -->
@@ -875,22 +761,9 @@
                 <h3 style="margin-top: 30px; color: #ED1C24;">👥 직원 관리</h3>
                 <div id="employeeManagement"></div>
 
-                <h3 style="margin-top: 30px; color: #ED1C24;">🍱 메뉴 관리</h3>
-                <p style="margin: 10px 0; color: #666;">메뉴명과 러시아어를 함께 입력하세요 (예: 순대국 (Сундэгук))</p>
-
-                <div class="form-group" style="margin-top: 20px;">
-                    <label>메인 메뉴 목록 (한 줄에 하나씩)</label>
-                    <textarea id="menuList" rows="12" placeholder="순대국 (Сундэгук)&#10;갈비탕 (Кальбитан)&#10;..."></textarea>
-                </div>
-
-                <div class="form-group" style="margin-top: 20px;">
-                    <label>사이드 메뉴 목록 (한 줄에 하나씩)</label>
-                    <textarea id="sideMenuList" rows="5" placeholder="김밥 (Кимбап)&#10;공기밥 (Рис)&#10;..."></textarea>
-                </div>
-
-                <div class="form-group" style="margin-top: 20px;">
-                    <label>포장 메뉴 목록 (한 줄에 하나씩)</label>
-                    <textarea id="takeoutMenuList" rows="5" placeholder="김밥(포장) (Кимбап (на вынос))&#10;공기밥(포장) (Рис (на вынос))&#10;..."></textarea>
+                <div class="form-group" style="margin-top: 30px;">
+                    <label>메뉴 목록 (한 줄에 하나씩)</label>
+                    <textarea id="menuList" rows="15"></textarea>
                 </div>
 
                 <button class="btn btn-primary btn-full" onclick="saveSettings()">
@@ -903,49 +776,34 @@
     <script>
         // 메뉴 러시아어 번역
         const MENU_TRANSLATIONS = {
-            '랜덤 주문': 'Случайный выбор (Random)',
-            '순대국': 'Сундэ кук паб',
+            '순대국': 'Сундэгук (Sundaeguk)',
             '갈비탕': 'Кальбитан (Kalbitang)',
-            '설렁탕': 'Солонтан тукбеги',
             '짬뽕밥': 'Чампонбап (Jjamppongbap)',
             '짬뽕면': 'Чампонмён (Jjamppong)',
-            '라면': 'Рамен',
-            '잔치국수': 'Данчи кукsu',
-            '물냉면': 'Мульненмен',
-            '비빔국수': 'Пибим куксу',
-            '비빔냉면': 'Пибим ненмен',
-            '해물볶음면': 'Хемуль покым мен',
-            '짜장면': 'Чадян мен',
-            '해물순두부찌개': 'Хемуль сунтубу',
-            '김치순두부': 'Кимчи сунтубу',
-            '된장찌개': 'Тэндян тиге свинина',
-            '해물된장찌개': 'Тэндян тиге хемуль',
-            '고등어조림': 'Скумбрия тушёная',
-            '고등어구이': 'Скумбрия жареная',
-            '해물볶음밥': 'Хемуль покым паб',
-            '소고기볶음밥': 'Сокоги покым паб',
-            '새우볶음밥': 'Сеу покым паб',
-            '명가해장국': 'Менга хедян кук',
+            '해물순두부': 'Сундубу с морепродуктами',
+            '순두부찌개': 'Сундубу ччигэ',
+            '고등어조림+김밥': 'Скумбрия + кимбап',
+            '고등어구이+김밥': 'Жареная скумбрия + кимбап',
+            '해물볶음밥': 'Боккымбап с морепродуктами',
+            '명가해장국': 'Мёнга хэджангук',
             '잡채밥': 'Чапчебап',
             '비빔밥': 'Пибимпап',
             '돌솥비빔밥': 'Пибимпап в камне',
             '김치볶음밥': 'Кимчи боккымбап',
-            '뚝배기불고기': 'Пулькоги тук беги',
-            '광어매운탕': 'Квано меунтан',
+            '뚝배기불고기': 'Пулькоги в горшочке',
+            '광어매운탕': 'Острый суп с палтусом',
             '도가니탕': 'Доганитан',
             '알탕': 'Альтан',
-            '감자탕뚝배기': 'Камдятан тукбеги',
-            '돈가스정식': 'Донкасс',
-            '삼겹살정식': 'Самгепсаль+Рис',
+            '돈가스정식': 'Сет с тонкацу',
+            '삼겹살정식': 'Сет с самгёпсаль',
+            '제육볶음': 'Чеюк поккым',
             '떡만두국': 'Ттокмандугук',
-            '육계장': 'Юккедян',
-            '김치찌개': 'Кимчи тиге',
+            '육계장': 'Юккеджан',
+            '김치찌개': 'Кимчи ччигэ',
             '차돌짬뽕밥': 'Чадоль чампонбап',
             '차돌짬뽕면': 'Чадоль чампон',
             '김밥': 'Кимбап',
             '김밥(포장)': 'Кимбап (на вынос)',
-            '공기밥': 'Рис',
-            '공기밥(포장)': 'Рис (на вынос)',
             '스킵': 'Пропустить (Skip)'
         };
 
@@ -959,7 +817,7 @@
 
         // 기본 직원 목록
         const DEFAULT_EMPLOYEES = [
-            { name: '김종기', phone: '+821075200783', isActive: true },
+            { name: '김종기', phone: '+79267730119', isActive: true },
             { name: '도은태', phone: '+79250237758', isActive: true },
             { name: '조민재', phone: '+79161348916', isActive: true },
             { name: '김우성', phone: '+79995050025', isActive: true },
@@ -968,35 +826,14 @@
             { name: '조성민', phone: '+79854128972', isActive: true }
         ];
 
-        // 기본 메뉴 목록 (한글만 저장)
-        // 카테고리별 메뉴 구조
-        const MENU_CATEGORIES = {
-            '국물류': ['순대국', '갈비탕', '설렁탕', '해물순두부찌개', '김치순두부', '된장찌개', '해물된장찌개', '명가해장국', '광어매운탕', '도가니탕', '알탕', '감자탕뚝배기', '떡만두국', '육계장', '김치찌개'],
-            '고기류': ['뚝배기불고기', '삼겹살정식', '돈가스정식'],
-            '생선류': ['고등어조림', '고등어구이'],
-            '밥류': ['짬뽕밥', '차돌짬뽕밥', '해물볶음밥', '소고기볶음밥', '새우볶음밥', '잡채밥', '비빔밥', '돌솥비빔밥', '김치볶음밥'],
-            '면류': ['짬뽕면', '차돌짬뽕면', '라면', '잔치국수', '비빔국수', '물냉면', '비빔냉면', '해물볶음면', '짜장면'],
-            '기타': ['랜덤 주문', '스킵']
-        };
-
-        // 호환성을 위한 평면 메뉴 리스트 (설정 저장/불러오기용)
+        // 기본 메뉴 목록
         const DEFAULT_MENUS = [
-            ...MENU_CATEGORIES['국물류'],
-            ...MENU_CATEGORIES['고기류'],
-            ...MENU_CATEGORIES['생선류'],
-            ...MENU_CATEGORIES['밥류'],
-            ...MENU_CATEGORIES['면류'],
-            ...MENU_CATEGORIES['기타']
-        ];
-
-        // 사이드 메뉴 목록 (한글만 저장)
-        const DEFAULT_SIDE_MENUS = [
-            '김밥', '공기밥'
-        ];
-
-        // 포장 메뉴 목록
-        const DEFAULT_TAKEOUT_MENUS = [
-            '김밥(포장)', '공기밥(포장)'
+            '순대국', '갈비탕', '짬뽕밥', '짬뽕면', '해물순두부', '순두부찌개',
+            '고등어조림+김밥', '해물볶음밥', '명가해장국',
+            '잡채밥', '비빔밥', '돌솥비빔밥', '김치볶음밥', '뚝배기불고기',
+            '광어매운탕', '도가니탕', '알탕', '돈가스정식',
+            '삼겹살정식', '제육볶음', '떡만두국', '육계장', '김치찌개',
+            '차돌짬뽕밥', '차돌짬뽕면', '김밥', '김밥(포장)', '스킵'
         ];
 
         const STORAGE_KEYS = {
@@ -1033,104 +870,8 @@
                 });
 
                 console.log('구글 시트에 데이터 전송 완료:', orderData);
-
-                // 전송 후 동기화
-                await syncFromGoogleSheet();
             } catch (error) {
                 console.error('구글 시트 전송 오류:', error);
-            }
-        }
-
-        // 구글 시트에서 전체 주문 내역 가져오기 (통계용)
-        async function getAllOrdersFromGoogleSheet() {
-            const settings = loadSettings();
-            const googleSheetUrl = settings.googleSheetUrl;
-
-            if (!googleSheetUrl) {
-                console.log('구글 시트 URL이 설정되지 않았습니다.');
-                return [];
-            }
-
-            try {
-                const response = await fetch(googleSheetUrl + '?action=getAllOrders', {
-                    method: 'GET'
-                });
-
-                const data = await response.json();
-
-                if (data.status === 'success' && data.orders) {
-                    return data.orders;
-                }
-            } catch (error) {
-                console.error('전체 주문 내역 가져오기 오류:', error);
-            }
-
-            return [];
-        }
-
-        // 구글 시트에서 데이터 가져오기
-        async function syncFromGoogleSheet() {
-            const settings = loadSettings();
-            const googleSheetUrl = settings.googleSheetUrl;
-
-            if (!googleSheetUrl) {
-                console.log('구글 시트 URL이 설정되지 않았습니다.');
-                return;
-            }
-
-            try {
-                const response = await fetch(googleSheetUrl + '?action=get', {
-                    method: 'GET'
-                });
-
-                const data = await response.json();
-
-                if (data.status === 'success' && data.orders) {
-                    // 구글 시트의 데이터를 LocalStorage에 동기화
-                    const syncedOrders = data.orders.map(order => {
-                        // 메뉴에서 기본메뉴, 사이드메뉴, 포장메뉴 분리
-                        let mainMenu = order.menu;
-                        let sideMenu = '';
-                        let takeoutMenu = '';
-
-                        if (order.menu && order.menu.includes(' + ')) {
-                            const parts = order.menu.split(' + ');
-                            mainMenu = parts[0];
-                            // 두 번째 부분이 포장인지 사이드인지 확인
-                            for (let i = 1; i < parts.length; i++) {
-                                if (parts[i].includes('(포장)')) {
-                                    takeoutMenu = parts[i];
-                                } else {
-                                    sideMenu = parts[i];
-                                }
-                            }
-                        }
-
-                        return {
-                            user: order.user,
-                            menu: mainMenu,
-                            sideMenu: sideMenu,
-                            takeoutMenu: takeoutMenu,
-                            time: order.time,
-                            timestamp: new Date(order.date + ' ' + order.time).getTime(),
-                            isGuest: order.isGuest
-                        };
-                    });
-
-                    // LocalStorage 업데이트
-                    const today = new Date().toDateString();
-                    localStorage.setItem(STORAGE_KEYS.orders, JSON.stringify(syncedOrders));
-                    localStorage.setItem(STORAGE_KEYS.date, today);
-
-                    console.log('구글 시트에서 동기화 완료:', syncedOrders.length + '개 주문');
-
-                    // UI 업데이트
-                    if (document.getElementById('admin').classList.contains('active')) {
-                        updateAdminView();
-                    }
-                }
-            } catch (error) {
-                console.error('구글 시트 동기화 오류:', error);
             }
         }
 
@@ -1165,46 +906,18 @@
             }
         }
 
-        async function loadSettingsFromGoogleSheet() {
-            const googleSheetUrl = localStorage.getItem('googleSheetUrl') || DEFAULT_GOOGLE_SHEET_URL;
-
-            if (!googleSheetUrl) {
-                return null;
-            }
-
-            try {
-                const response = await fetch(googleSheetUrl + '?action=getSettings', {
-                    method: 'GET'
-                });
-
-                const data = await response.json();
-
-                if (data.status === 'success' && data.settings) {
-                    // LocalStorage에도 저장 (오프라인 대비)
-                    localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(data.settings));
-                    return data.settings;
-                }
-            } catch (error) {
-                console.error('설정 불러오기 오류:', error);
-            }
-
-            return null;
-        }
-
         function loadSettings() {
             const settings = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings) || '{}');
             return {
-                deadline: settings.deadline || '12:15',
-                reminderMinutes: settings.reminderMinutes || 30,
+                deadline: settings.deadline || '12:20',
+                reminderMinutes: settings.reminderMinutes || 20,
                 menuList: settings.menuList || DEFAULT_MENUS,
-                sideMenuList: settings.sideMenuList || DEFAULT_SIDE_MENUS,
-                takeoutMenuList: settings.takeoutMenuList || DEFAULT_TAKEOUT_MENUS,
                 employees: settings.employees || DEFAULT_EMPLOYEES,
                 googleSheetUrl: settings.googleSheetUrl || DEFAULT_GOOGLE_SHEET_URL
             };
         }
 
-        async function saveSettings() {
+        function saveSettings() {
             const employees = [];
             document.querySelectorAll('.employee-setting').forEach(emp => {
                 employees.push({
@@ -1214,83 +927,24 @@
                 });
             });
 
-            // 메뉴에서 한글 부분만 추출하는 함수 (괄호 앞의 텍스트만)
-            const extractKorean = (menu) => {
-                const match = menu.match(/^([^(]+)/);
-                return match ? match[1].trim() : menu.trim();
-            };
-
             const settings = {
                 deadline: document.getElementById('deadlineTimeSetting').value,
                 reminderMinutes: parseInt(document.getElementById('reminderMinutes').value),
-                menuList: document.getElementById('menuList').value.split('\n').filter(m => m.trim()).map(extractKorean),
-                sideMenuList: document.getElementById('sideMenuList').value.split('\n').filter(m => m.trim()).map(extractKorean),
-                takeoutMenuList: document.getElementById('takeoutMenuList').value.split('\n').filter(m => m.trim()).map(extractKorean),
+                menuList: document.getElementById('menuList').value.split('\n').filter(m => m.trim()),
                 employees: employees,
                 googleSheetUrl: document.getElementById('googleSheetUrl').value.trim() || DEFAULT_GOOGLE_SHEET_URL
             };
 
-            // LocalStorage에 저장
             localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
-            localStorage.setItem('googleSheetUrl', settings.googleSheetUrl);
-
-            // 구글 시트에 저장
-            await saveSettingsToGoogleSheet(settings);
-
             alert('설정이 저장되었습니다!');
             location.reload();
-        }
-
-        async function saveSettingsToGoogleSheet(settings) {
-            const googleSheetUrl = settings.googleSheetUrl;
-
-            if (!googleSheetUrl) {
-                console.log('구글 시트 URL이 설정되지 않았습니다.');
-                return;
-            }
-
-            try {
-                const response = await fetch(googleSheetUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'saveSettings',
-                        settings: settings
-                    })
-                });
-
-                console.log('구글 시트에 설정 저장 완료');
-            } catch (error) {
-                console.error('구글 시트 설정 저장 오류:', error);
-            }
         }
 
         function updateSettingsUI() {
             const settings = loadSettings();
             document.getElementById('deadlineTimeSetting').value = settings.deadline;
             document.getElementById('reminderMinutes').value = settings.reminderMinutes;
-
-            // 설정 페이지에서는 한글 + 러시아어 병기해서 표시
-            const menuListWithRussian = settings.menuList.map(menu => {
-                const russian = MENU_TRANSLATIONS[menu];
-                return russian ? `${menu} (${russian.split(' ')[0]})` : menu;
-            });
-            const sideMenuListWithRussian = settings.sideMenuList.map(menu => {
-                const russian = MENU_TRANSLATIONS[menu];
-                return russian ? `${menu} (${russian.split(' ')[0]})` : menu;
-            });
-
-            const takeoutMenuListWithRussian = settings.takeoutMenuList.map(menu => {
-                const russian = MENU_TRANSLATIONS[menu];
-                return russian ? `${menu} (${russian.split(' ')[0]})` : menu;
-            });
-
-            document.getElementById('menuList').value = menuListWithRussian.join('\n');
-            document.getElementById('sideMenuList').value = sideMenuListWithRussian.join('\n');
-            document.getElementById('takeoutMenuList').value = takeoutMenuListWithRussian.join('\n');
+            document.getElementById('menuList').value = settings.menuList.join('\n');
             document.getElementById('deadlineTime').textContent = settings.deadline;
             document.getElementById('googleSheetUrl').value = settings.googleSheetUrl;
 
@@ -1307,30 +961,14 @@
             `).join('');
 
             const userSelect = document.getElementById('userName');
-            userSelect.innerHTML = '<option value="">선택하세요</option>' +
+            userSelect.innerHTML = '<option value="">선택하세요 / Выберите</option>' +
                 settings.employees.filter(e => e.isActive).map(emp =>
                     `<option value="${emp.name}">${emp.name}</option>`
                 ).join('');
-
-            // localStorage에서 마지막 선택한 이름 불러와서 자동 선택
-            const lastSelectedUser = localStorage.getItem('lastSelectedUser');
-            if (lastSelectedUser) {
-                userSelect.value = lastSelectedUser;
-                loadUserInfo(); // 선택된 사용자 정보 로드
-            }
         }
 
         function loadUserInfo() {
             const userName = document.getElementById('userName').value;
-
-            // localStorage에 마지막 선택한 이름 저장
-            if (userName) {
-                localStorage.setItem('lastSelectedUser', userName);
-            }
-
-            // 시각적 피드백 업데이트
-            validateOrder();
-
             if (!userName) return;
 
             const orders = loadOrders();
@@ -1341,227 +979,33 @@
             }
         }
 
-        // 주문 유효성 검사 및 버튼 활성화/비활성화
-        function validateOrder() {
-            const userName = document.getElementById('userName').value;
-            const userNameSelect = document.getElementById('userName');
-            const submitBtn = document.getElementById('submitBtn');
-
-            // 이름 선택 시각적 피드백
-            if (!userName) {
-                userNameSelect.classList.remove('valid');
-                userNameSelect.classList.add('invalid');
-            } else {
-                userNameSelect.classList.remove('invalid');
-                userNameSelect.classList.add('valid');
-            }
-
-            // 메뉴 선택 확인
-            const customMenu = document.getElementById('customMenu').value.trim();
-            const hasMenu = customMenu || selectedMenu;
-
-            // 이름과 메뉴가 모두 선택되었는지 확인
-            const isValid = userName && hasMenu;
-
-            // 버튼 활성화/비활성화 및 색상 변경
-            submitBtn.disabled = !isValid;
-
-            if (isValid) {
-                // 활성화 시 초록색
-                submitBtn.classList.remove('btn-primary');
-                submitBtn.classList.add('btn-success');
-            } else {
-                // 비활성화 시 빨간색
-                submitBtn.classList.remove('btn-success');
-                submitBtn.classList.add('btn-primary');
-            }
-
-            // 주문 미리보기 업데이트
-            updateOrderPreview();
-        }
-
-        // 주문 미리보기 업데이트 (버튼 텍스트)
-        function updateOrderPreview() {
-            const userName = document.getElementById('userName').value;
-            const customMenu = document.getElementById('customMenu').value.trim();
-            const menuItem = customMenu || selectedMenu;
-            const submitBtn = document.getElementById('submitBtn');
-
-            if (!userName || !menuItem) {
-                submitBtn.textContent = '주문하기';
-                return;
-            }
-
-            // 주문 내용 구성 (메뉴만)
-            let orderText = menuItem;
-
-            if (selectedSideMenu) {
-                orderText += ` + ${selectedSideMenu}`;
-            }
-            if (selectedTakeoutMenu) {
-                orderText += ` + ${selectedTakeoutMenu}`;
-            }
-
-            // 버튼 텍스트에 메뉴만 표시
-            submitBtn.textContent = `${orderText} 주문하기`;
-        }
-
         function renderMenuOptions() {
             const settings = loadSettings();
-
-            // 기본 메뉴를 카테고리별로 렌더링
             const container = document.getElementById('menuOptions');
             container.innerHTML = '';
 
-            // 카테고리별로 렌더링
-            Object.entries(MENU_CATEGORIES).forEach(([categoryName, menus]) => {
-                // 카테고리 섹션 생성
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'menu-category';
-
-                // 카테고리 제목
-                const titleDiv = document.createElement('div');
-                titleDiv.className = 'menu-category-title';
-                titleDiv.textContent = categoryName;
-                categoryDiv.appendChild(titleDiv);
-
-                // 카테고리 메뉴 아이템들
-                const itemsDiv = document.createElement('div');
-                itemsDiv.className = 'menu-category-items';
-
-                menus.forEach(menu => {
-                    // settings.menuList에 있는 메뉴만 표시
-                    if (settings.menuList.includes(menu)) {
-                        const option = document.createElement('div');
-                        let className = 'menu-option';
-                        if (menu === '스킵') className += ' skip';
-                        if (menu === '랜덤 주문') className += ' random';
-                        option.className = className;
-                        option.textContent = menu === '랜덤 주문' ? '🎰 랜덤 주문' : menu;
-                        option.onclick = () => selectMenu(menu, option, 'main');
-                        itemsDiv.appendChild(option);
-                    }
-                });
-
-                // 카테고리에 메뉴가 있으면 컨테이너에 추가
-                if (itemsDiv.children.length > 0) {
-                    categoryDiv.appendChild(itemsDiv);
-                    container.appendChild(categoryDiv);
-                }
-            });
-
-            // 사이드 메뉴 렌더링
-            const sideContainer = document.getElementById('sideMenuOptions');
-            sideContainer.innerHTML = '';
-            settings.sideMenuList.forEach(menu => {
+            settings.menuList.forEach(menu => {
                 const option = document.createElement('div');
-                option.className = 'menu-option side-menu-option';
+                option.className = 'menu-option' + (menu === '스킵' ? ' skip' : '');
                 option.textContent = menu;
-                option.onclick = () => selectMenu(menu, option, 'side');
-                sideContainer.appendChild(option);
-            });
-
-            // 포장 메뉴 렌더링
-            const takeoutContainer = document.getElementById('takeoutMenuOptions');
-            takeoutContainer.innerHTML = '';
-            settings.takeoutMenuList.forEach(menu => {
-                const option = document.createElement('div');
-                option.className = 'menu-option takeout-menu-option';
-                option.textContent = menu;
-                option.onclick = () => selectMenu(menu, option, 'takeout');
-                takeoutContainer.appendChild(option);
+                option.onclick = () => selectMenu(menu, option);
+                container.appendChild(option);
             });
         }
 
         let selectedMenu = null;
-        let selectedSideMenu = null;
-        let selectedTakeoutMenu = null;
-        let currentRandomMenu = null; // 현재 선택된 랜덤 메뉴
-        let isSpinning = false; // 슬롯머신 애니메이션 중인지 확인
 
-        // 슬롯머신 애니메이션 함수
-        async function spinSlotMachine(element) {
-            if (isSpinning) return; // 이미 실행 중이면 무시
-            isSpinning = true;
+        function selectMenu(menu, element) {
+            document.querySelectorAll('.menu-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
 
-            const availableMenus = DEFAULT_MENUS.filter(m => m !== '랜덤 주문' && m !== '스킵');
-
-            // 총 스핀 횟수 (점점 느려짐)
-            const spinTimes = [100, 100, 120, 140, 160, 200, 250];
-
-            element.classList.add('spinning');
-            element.innerHTML = '🎰 돌리는 중...';
-
-            for (let i = 0; i < spinTimes.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, spinTimes[i]));
-                const randomIndex = Math.floor(Math.random() * availableMenus.length);
-                element.innerHTML = `🎰 ${availableMenus[randomIndex]}`;
-                element.classList.add('spinning');
-
-                // 애니메이션 클래스 제거 후 다시 추가 (리플레이)
-                setTimeout(() => element.classList.remove('spinning'), 100);
-            }
-
-            // 최종 메뉴 선택
-            const finalIndex = Math.floor(Math.random() * availableMenus.length);
-            currentRandomMenu = availableMenus[finalIndex];
-
-            await new Promise(resolve => setTimeout(resolve, 300));
-            element.innerHTML = `🎉 ${currentRandomMenu}`;
             element.classList.add('selected');
+            selectedMenu = menu;
 
-            isSpinning = false;
-            return currentRandomMenu;
-        }
-
-        async function selectMenu(menu, element, type) {
-            if (type === 'main') {
-                document.querySelectorAll('#menuOptions .menu-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-                element.classList.add('selected');
-                selectedMenu = menu;
-
-                // 랜덤 주문 클릭 시 슬롯머신 애니메이션 실행
-                if (menu === '랜덤 주문') {
-                    await spinSlotMachine(element);
-                } else {
-                    currentRandomMenu = null;
-                }
-
-                if (menu !== '스킵') {
-                    document.getElementById('customMenu').value = '';
-                }
-            } else if (type === 'side') {
-                const alreadySelected = element.classList.contains('selected');
-                document.querySelectorAll('#sideMenuOptions .menu-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-
-                if (alreadySelected) {
-                    // 이미 선택된 메뉴를 다시 클릭하면 선택 해제
-                    selectedSideMenu = null;
-                } else {
-                    element.classList.add('selected');
-                    selectedSideMenu = menu;
-                }
-            } else if (type === 'takeout') {
-                const alreadySelected = element.classList.contains('selected');
-                document.querySelectorAll('#takeoutMenuOptions .menu-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-
-                if (alreadySelected) {
-                    // 이미 선택된 메뉴를 다시 클릭하면 선택 해제
-                    selectedTakeoutMenu = null;
-                } else {
-                    element.classList.add('selected');
-                    selectedTakeoutMenu = menu;
-                }
+            if (menu !== '스킵') {
+                document.getElementById('customMenu').value = '';
             }
-
-            // 메뉴 선택 시 주문 유효성 검사 및 미리보기 업데이트
-            validateOrder();
         }
 
         function submitOrder() {
@@ -1576,23 +1020,8 @@
             let menuItem = customMenu || selectedMenu;
 
             if (!menuItem) {
-                alert('기본 메뉴를 선택하거나 입력해주세요!');
+                alert('메뉴를 선택하거나 입력해주세요!');
                 return;
-            }
-
-            // 랜덤 주문 처리
-            let selectedRandomMenu = null;
-            if (menuItem === '랜덤 주문') {
-                // 이미 선택된 랜덤 메뉴가 있으면 사용, 없으면 새로 선택
-                if (currentRandomMenu) {
-                    selectedRandomMenu = currentRandomMenu;
-                    menuItem = currentRandomMenu;
-                } else {
-                    const availableMenus = DEFAULT_MENUS.filter(m => m !== '랜덤 주문' && m !== '스킵');
-                    const randomIndex = Math.floor(Math.random() * availableMenus.length);
-                    selectedRandomMenu = availableMenus[randomIndex];
-                    menuItem = selectedRandomMenu;
-                }
             }
 
             const orders = loadOrders();
@@ -1602,8 +1031,6 @@
             const order = {
                 user: userName,
                 menu: menuItem,
-                sideMenu: selectedSideMenu || '',
-                takeoutMenu: selectedTakeoutMenu || '',
                 time: now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
                 timestamp: now.getTime(),
                 isGuest: false
@@ -1619,44 +1046,23 @@
 
             // 구글 시트로 데이터 전송
             const today = new Date().toISOString().split('T')[0];
-            let fullMenu = menuItem;
-            if (selectedSideMenu) fullMenu += ' + ' + selectedSideMenu;
-            if (selectedTakeoutMenu) fullMenu += ' + ' + selectedTakeoutMenu;
             sendToGoogleSheet({
                 date: today,
                 user: userName,
-                menu: fullMenu,
+                menu: menuItem,
                 time: order.time,
                 isGuest: false
             });
 
             const successMsg = document.getElementById('orderSuccess');
-            if (selectedRandomMenu) {
-                successMsg.innerHTML = `✅ 주문이 성공적으로 등록되었습니다!<br>선택된 메뉴: <strong>${selectedRandomMenu}</strong>`;
-            } else {
-                successMsg.innerHTML = '✅ 주문이 성공적으로 등록되었습니다!';
-            }
             successMsg.classList.add('show');
-            setTimeout(() => {
-                successMsg.classList.remove('show');
-                successMsg.innerHTML = '✅ 주문이 성공적으로 등록되었습니다!';
-            }, 3000);
+            setTimeout(() => successMsg.classList.remove('show'), 3000);
 
             document.getElementById('customMenu').value = '';
             document.querySelectorAll('.menu-option').forEach(opt => {
                 opt.classList.remove('selected');
-                // 랜덤 주문 버튼 텍스트 원래대로 복원
-                if (opt.textContent.includes('랜덤 주문') || opt.textContent.includes('🎰') || opt.textContent.includes('🎉')) {
-                    opt.innerHTML = '🎰 랜덤 주문';
-                }
             });
             selectedMenu = null;
-            selectedSideMenu = null;
-            selectedTakeoutMenu = null;
-            currentRandomMenu = null;
-
-            // 주문 제출 후 유효성 검사 (버튼 비활성화 및 미리보기 숨김)
-            validateOrder();
         }
 
         function addGuest() {
@@ -1679,7 +1085,7 @@
             guestList.appendChild(guestDiv);
         }
 
-        async function saveGuest(id) {
+        function saveGuest(id) {
             const name = document.getElementById(`guestName${id}`).value.trim();
             const menu = document.getElementById(`guestMenu${id}`).value;
             const custom = document.getElementById(`guestCustom${id}`).value.trim();
@@ -1720,7 +1126,7 @@
 
             alert(`${name} 손님의 주문이 추가되었습니다!`);
             document.getElementById('guestList').innerHTML = '';
-            await updateAdminView();
+            updateAdminView();
         }
 
         function loadOrders() {
@@ -1787,8 +1193,7 @@
                 let itemClass = 'not-ordered';
 
                 if (order) {
-                    // 메인이 스킵이고 사이드/포장 메뉴가 없는 경우만 진짜 스킵
-                    if (order.menu === '스킵' && !order.sideMenu && !order.takeoutMenu) {
+                    if (order.menu === '스킵') {
                         status = 'skip';
                         statusText = '스킵';
                         statusClass = 'status-skip';
@@ -1798,17 +1203,7 @@
                         status = 'ordered';
                         statusText = '주문완료';
                         statusClass = 'status-ordered';
-                        // 메인이 스킵이고 사이드나 포장이 있으면 그것들만 표시
-                        if (order.menu === '스킵') {
-                            let parts = [];
-                            if (order.sideMenu) parts.push(order.sideMenu);
-                            if (order.takeoutMenu) parts.push(order.takeoutMenu);
-                            menuText = parts.join(' + ');
-                        } else {
-                            menuText = order.menu;
-                            if (order.sideMenu) menuText += ' + ' + order.sideMenu;
-                            if (order.takeoutMenu) menuText += ' + ' + order.takeoutMenu;
-                        }
+                        menuText = order.menu;
                         itemClass = 'ordered';
                     }
                 }
@@ -1893,20 +1288,11 @@
             });
         }
 
-        async function updateAdminView() {
+        function updateAdminView() {
             const orders = loadOrders();
 
-            // 스킵: 메인이 스킵이고 사이드/포장 메뉴가 없는 경우만
-            const skipOrders = orders.filter(o => o.menu === '스킵' && !o.sideMenu && !o.takeoutMenu);
-            // 식사 주문: 메인이 스킵이 아니거나, 사이드 메뉴가 있는 경우 (포장만 있는 경우는 제외)
-            const activeOrders = orders.filter(o => {
-                // 메인이 있는 경우 (스킵이 아닌 경우)
-                if (o.menu !== '스킵') return true;
-                // 메인이 스킵이고 사이드 메뉴가 있으면 식사 인원에 포함
-                if (o.sideMenu) return true;
-                // 메인이 스킵이고 포장만 있는 경우는 식사 인원에서 제외
-                return false;
-            });
+            const skipOrders = orders.filter(o => o.menu === '스킵');
+            const activeOrders = orders.filter(o => o.menu !== '스킵');
             const guestOrders = orders.filter(o => o.isGuest);
 
             document.getElementById('totalOrders').textContent = orders.length;
@@ -1916,78 +1302,70 @@
 
             updateEmployeeStatus();
 
+            const ordersList = document.getElementById('ordersList');
+            if (orders.length === 0) {
+                ordersList.innerHTML = '<div class="empty-state">📭<br>아직 주문이 없습니다</div>';
+            } else {
+                ordersList.innerHTML = orders.map(order => `
+                    <div class="order-item ${order.isGuest ? 'order-guest' : ''}">
+                        <div class="order-user">${order.user}</div>
+                        <div class="order-menu ${order.menu === '스킵' ? 'order-skip' : ''}">${order.menu}</div>
+                        <div class="order-time">${order.time}</div>
+                    </div>
+                `).join('');
+            }
+
             const menuCount = {};
             activeOrders.forEach(order => {
-                // 메인이 "스킵"이고 사이드가 있으면 사이드만 집계
-                let fullMenu;
-                if (order.menu === '스킵' && order.sideMenu) {
-                    fullMenu = order.sideMenu;
-                } else {
-                    fullMenu = order.menu;
-                    if (order.sideMenu) fullMenu += ' + ' + order.sideMenu;
-                }
-                menuCount[fullMenu] = (menuCount[fullMenu] || 0) + 1;
+                menuCount[order.menu] = (menuCount[order.menu] || 0) + 1;
             });
 
-            // 포장 메뉴는 별도로 집계 (식사 인원에는 포함되지 않음)
-            const takeoutCount = {};
-            orders.filter(o => o.takeoutMenu).forEach(order => {
-                const menu = order.takeoutMenu;
-                takeoutCount[menu] = (takeoutCount[menu] || 0) + 1;
-            });
+            const menuSummary = document.getElementById('menuSummary');
+            if (Object.keys(menuCount).length === 0) {
+                menuSummary.innerHTML = '<div class="empty-state">주문된 메뉴가 없습니다</div>';
+            } else {
+                menuSummary.innerHTML = Object.entries(menuCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([menu, count]) => `
+                        <div class="summary-item">
+                            <span><strong>${menu}</strong></span>
+                            <span class="summary-count">${count}개</span>
+                        </div>
+                    `).join('');
+            }
 
-            generateWhatsAppText(activeOrders, menuCount, takeoutCount);
-            await updateEmployeePreferences();
+            generateWhatsAppText(activeOrders, menuCount);
+            updateEmployeePreferences();
         }
 
-        function generateWhatsAppText(activeOrders, menuCount, takeoutCount) {
+        function generateWhatsAppText(activeOrders, menuCount) {
             const today = new Date();
+            const dateKR = today.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                weekday: 'short'
+            });
+            const dateRU = today.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                weekday: 'short'
+            });
 
-            // 러시아식 날짜 표기 (일.월.년)
-            const day = today.getDate().toString().padStart(2, '0');
-            const month = (today.getMonth() + 1).toString().padStart(2, '0');
-            const year = today.getFullYear();
-
-            // 러시아어 요일
-            const russianWeekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-            const weekday = russianWeekdays[today.getDay()];
-
-            const dateRU = `${day}.${month}.${year} (${weekday})`;
-
-            let text = `Здравствуйте!\n\n`;
-            text += `📅 ${dateRU}\n`;
-            text += `🕐 Время прибытия: 12.45\n\n`;
-            text += `🍱 Всего: ${activeOrders.length} чел.\n\n`;
+            let text = `🍫 Happy Moments - 롯데제과 러시아법인\n`;
+            text += `📅 ${dateKR} | ${dateRU}\n\n`;
+            text += `🍱 점심 주문 - Всего: ${activeOrders.length}명\n\n`;
 
             // 메뉴별 집계 (한글/러시아어)
             Object.entries(menuCount)
                 .sort((a, b) => b[1] - a[1])
                 .forEach(([menu, count]) => {
-                    let menuRU = '';
-                    if (menu.includes(' + ')) {
-                        // 기본메뉴 + 사이드메뉴 형식
-                        const parts = menu.split(' + ');
-                        const mainRU = MENU_TRANSLATIONS[parts[0]] || parts[0];
-                        const sideRU = MENU_TRANSLATIONS[parts[1]] || parts[1];
-                        menuRU = `${mainRU} + ${sideRU}`;
-                    } else {
-                        menuRU = MENU_TRANSLATIONS[menu] || menu;
-                    }
-                    text += `• ${menu} (${menuRU}) - ${count} шт.\n`;
+                    const menuRU = MENU_TRANSLATIONS[menu] || menu;
+                    text += `• ${menu} (${menuRU}) - ${count}개\n`;
                 });
 
-            // 포장 메뉴 섹션 (있을 경우만)
-            if (Object.keys(takeoutCount).length > 0) {
-                text += `\n📦 На вынос:\n`;
-                Object.entries(takeoutCount)
-                    .sort((a, b) => b[1] - a[1])
-                    .forEach(([menu, count]) => {
-                        const menuRU = MENU_TRANSLATIONS[menu] || menu;
-                        text += `• ${menu} (${menuRU}) - ${count} шт.\n`;
-                    });
-            }
-
-            text += `\nСпасибо!\nЛотте КФ Рус\n`;
+            text += `\n🍫 Лотте КФ Рус\n`;
 
             document.getElementById('whatsappText').textContent = text;
         }
@@ -2009,73 +1387,54 @@
             }
         }
 
-        async function updateEmployeePreferences() {
+        function updateEmployeePreferences() {
+            // localStorage에서 과거 모든 주문 내역 가져오기
+            const allOrders = JSON.parse(localStorage.getItem('allOrderHistory') || '[]');
+            const employees = loadEmployees();
+
             const preferencesDiv = document.getElementById('employeePreferences');
-
-            // 로딩 표시
-            preferencesDiv.innerHTML = '<div class="empty-state">📊<br>통계를 불러오는 중...</div>';
-
-            // 구글 시트에서 전체 주문 내역 가져오기
-            const allOrders = await getAllOrdersFromGoogleSheet();
-            const employees = loadSettings().employees;
 
             if (allOrders.length === 0) {
                 preferencesDiv.innerHTML = '<div class="empty-state">📭<br>아직 주문 내역이 없습니다</div>';
                 return;
             }
 
-            // 직원별 메뉴 카운트 및 총 주문 횟수
-            const employeeStats = {};
+            // 직원별 메뉴 카운트
+            const employeeMenuCount = {};
             employees.forEach(emp => {
-                employeeStats[emp.name] = {
-                    menuCount: {},
-                    totalOrders: 0
-                };
+                employeeMenuCount[emp.name] = {};
             });
 
             allOrders.forEach(order => {
-                if (!order.isGuest && order.menu !== '스킵' && employeeStats[order.user]) {
-                    // 메뉴에서 기본 메뉴만 추출 (+ 이전 부분 제거)
-                    const menu = order.menu.split(' + ')[0];
-                    employeeStats[order.user].menuCount[menu] = (employeeStats[order.user].menuCount[menu] || 0) + 1;
-                    employeeStats[order.user].totalOrders++;
+                if (!order.isGuest && order.menu !== '스킵' && employeeMenuCount[order.user]) {
+                    const menu = order.menu;
+                    employeeMenuCount[order.user][menu] = (employeeMenuCount[order.user][menu] || 0) + 1;
                 }
             });
 
-            // 각 직원별 TOP 3 메뉴 추출 및 표시
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px;">';
+            // 각 직원별 TOP 3 메뉴 추출
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">';
 
             employees.forEach(emp => {
-                const stats = employeeStats[emp.name];
-                const sortedMenus = Object.entries(stats.menuCount)
+                const menuStats = employeeMenuCount[emp.name];
+                const sortedMenus = Object.entries(menuStats)
                     .sort((a, b) => b[1] - a[1])
                     .slice(0, 3);
 
-                const totalOrders = stats.totalOrders;
-
                 html += `
-                    <div class="card" style="padding: 15px; background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%); border: 2px solid #ED1C24;">
-                        <h4 style="color: #ED1C24; margin-bottom: 5px; font-size: 1.1rem;">${emp.name}</h4>
-                        <p style="color: #666; font-size: 0.85rem; margin-bottom: 12px;">총 ${totalOrders}회 주문</p>
+                    <div class="card" style="padding: 15px; background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);">
+                        <h4 style="color: #ED1C24; margin-bottom: 10px;">${emp.name}</h4>
                 `;
 
                 if (sortedMenus.length === 0) {
-                    html += '<p style="color: #999; font-size: 0.9rem; text-align: center; padding: 20px;">주문 내역 없음</p>';
+                    html += '<p style="color: #999; font-size: 0.9rem;">주문 내역 없음</p>';
                 } else {
                     sortedMenus.forEach(([menu, count], index) => {
                         const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
-                        const percentage = totalOrders > 0 ? Math.round((count / totalOrders) * 100) : 0;
-                        const barWidth = percentage;
-
                         html += `
-                            <div style="margin: 8px 0;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                    <span style="font-weight: 600; font-size: 0.95rem;">${medal} ${menu}</span>
-                                    <span style="background: #ED1C24; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">${count}회 (${percentage}%)</span>
-                                </div>
-                                <div style="background: #f0f0f0; height: 8px; border-radius: 4px; overflow: hidden;">
-                                    <div style="background: linear-gradient(90deg, #ED1C24, #ff6b6b); height: 100%; width: ${barWidth}%; transition: width 0.5s ease;"></div>
-                                </div>
+                            <div style="padding: 8px; margin: 5px 0; background: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>${medal} ${menu}</span>
+                                <span style="background: #ED1C24; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">${count}회</span>
                             </div>
                         `;
                     });
@@ -2112,7 +1471,7 @@
             }
         }
 
-        async function switchTab(tabName) {
+        function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -2124,8 +1483,7 @@
             event.target.classList.add('active');
 
             if (tabName === 'admin') {
-                await syncFromGoogleSheet();
-                await updateAdminView();
+                updateAdminView();
             }
         }
 
@@ -2164,145 +1522,13 @@
             }
         }
 
-        // 현재 날짜/시간 업데이트
-        function updateDateTime() {
-            const now = new Date();
-            const options = {
-                timeZone: 'Europe/Moscow',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                weekday: 'long',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            };
-
-            const koreanWeekdays = {
-                'Monday': '월요일',
-                'Tuesday': '화요일',
-                'Wednesday': '수요일',
-                'Thursday': '목요일',
-                'Friday': '금요일',
-                'Saturday': '토요일',
-                'Sunday': '일요일'
-            };
-
-            const russianWeekdays = {
-                'Monday': 'Понедельник',
-                'Tuesday': 'Вторник',
-                'Wednesday': 'Среда',
-                'Thursday': 'Четверг',
-                'Friday': 'Пятница',
-                'Saturday': 'Суббота',
-                'Sunday': 'Воскресенье'
-            };
-
-            const formatter = new Intl.DateTimeFormat('ko-KR', options);
-            const parts = formatter.formatToParts(now);
-
-            const year = parts.find(p => p.type === 'year').value;
-            const month = parts.find(p => p.type === 'month').value;
-            const day = parts.find(p => p.type === 'day').value;
-            const weekdayEn = parts.find(p => p.type === 'weekday').value;
-            const hour = parts.find(p => p.type === 'hour').value;
-            const minute = parts.find(p => p.type === 'minute').value;
-            const second = parts.find(p => p.type === 'second').value;
-
-            const weekdayKo = koreanWeekdays[weekdayEn] || weekdayEn;
-
-            const dateTimeText = `📅 ${year}년 ${month}월 ${day}일 ${weekdayKo} ${hour}:${minute}:${second}`;
-
-            document.getElementById('currentDateTime').textContent = dateTimeText;
-        }
-
-        // 모스크바 날씨 정보 가져오기 (캐싱 최적화)
-        async function updateWeather() {
-            const CACHE_KEY = 'weather_cache';
-            const CACHE_DURATION = 30 * 60 * 1000; // 30분
-
-            // 1️⃣ 먼저 캐시된 날씨 정보가 있으면 즉시 표시
-            const cachedData = localStorage.getItem(CACHE_KEY);
-            if (cachedData) {
-                try {
-                    const { weatherText, timestamp } = JSON.parse(cachedData);
-                    const isExpired = Date.now() - timestamp > CACHE_DURATION;
-
-                    // 캐시가 유효하면 즉시 표시
-                    if (!isExpired) {
-                        document.getElementById('weatherInfo').textContent = weatherText;
-                        return; // 캐시가 유효하면 API 호출 생략
-                    }
-
-                    // 캐시가 만료되었지만 일단 표시 (백그라운드에서 업데이트)
-                    document.getElementById('weatherInfo').textContent = weatherText;
-                } catch (e) {
-                    console.error('캐시 파싱 오류:', e);
-                }
-            }
-
-            // 2️⃣ 백그라운드에서 새로운 날씨 정보 가져오기
-            try {
-                // 타임아웃 설정 (5초)
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-                const response = await fetch('https://wttr.in/Moscow?format=j1', {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-
-                const data = await response.json();
-
-                const current = data.current_condition[0];
-                const temp = current.temp_C;
-                const feelsLike = current.FeelsLikeC;
-                const weatherDesc = current.lang_ru ? current.lang_ru[0].value : current.weatherDesc[0].value;
-                const humidity = current.humidity;
-
-                const weatherText = `🌤️ 모스크바 날씨: ${temp}°C (체감 ${feelsLike}°C) · ${weatherDesc} · 습도 ${humidity}%`;
-
-                // 화면에 표시
-                document.getElementById('weatherInfo').textContent = weatherText;
-
-                // localStorage에 캐싱
-                localStorage.setItem(CACHE_KEY, JSON.stringify({
-                    weatherText,
-                    timestamp: Date.now()
-                }));
-            } catch (error) {
-                console.error('날씨 정보 로드 실패:', error);
-
-                // 캐시가 없는 경우에만 오류 메시지 표시
-                if (!cachedData) {
-                    document.getElementById('weatherInfo').textContent = '🌤️ 날씨 정보를 불러올 수 없습니다';
-                }
-                // 캐시가 있으면 계속 캐시된 정보 표시
-            }
-        }
-
-        async function init() {
-            // 페이지 로드 시 구글 시트에서 설정 동기화
-            await loadSettingsFromGoogleSheet();
-
+        function init() {
             checkWorkingDay();
             updateSettingsUI();
             renderMenuOptions();
             updateTimeLeft();
             setInterval(updateTimeLeft, 60000);
             checkAndResetDaily();
-
-            // 날짜/시간 업데이트 (매초)
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-
-            // 날씨 정보 업데이트 (최초 1회 + 30분마다)
-            updateWeather();
-            setInterval(updateWeather, 30 * 60 * 1000);
-
-            // 페이지 로드 시 구글 시트에서 주문 데이터 동기화
-            await syncFromGoogleSheet();
         }
 
         window.onload = init;

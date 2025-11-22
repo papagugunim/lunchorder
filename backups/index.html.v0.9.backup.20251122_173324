@@ -204,38 +204,10 @@
         }
 
         .menu-options {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-
-        .menu-category {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .menu-category-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #666;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .menu-category-items {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 12px;
-        }
-
-        /* 사이드 메뉴와 포장 메뉴는 항상 2열 고정 */
-        #sideMenuOptions,
-        #takeoutMenuOptions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            margin-bottom: 15px;
         }
 
         .menu-option {
@@ -678,7 +650,7 @@
                 font-size: 1.6rem;
             }
 
-            .menu-category-items {
+            .menu-options {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             }
 
@@ -906,40 +878,28 @@
             '랜덤 주문': 'Случайный выбор (Random)',
             '순대국': 'Сундэ кук паб',
             '갈비탕': 'Кальбитан (Kalbitang)',
-            '설렁탕': 'Солонтан тукбеги',
             '짬뽕밥': 'Чампонбап (Jjamppongbap)',
             '짬뽕면': 'Чампонмён (Jjamppong)',
-            '라면': 'Рамен',
-            '잔치국수': 'Данчи кукsu',
-            '물냉면': 'Мульненмен',
-            '비빔국수': 'Пибим куксу',
-            '비빔냉면': 'Пибим ненмен',
-            '해물볶음면': 'Хемуль покым мен',
-            '짜장면': 'Чадян мен',
-            '해물순두부찌개': 'Хемуль сунтубу',
-            '김치순두부': 'Кимчи сунтубу',
-            '된장찌개': 'Тэндян тиге свинина',
-            '해물된장찌개': 'Тэндян тиге хемуль',
+            '해물순두부': 'Хемуль сунтубу',
+            '순두부찌개': 'Сундубу ччигэ',
             '고등어조림': 'Скумбрия тушёная',
             '고등어구이': 'Скумбрия жареная',
             '해물볶음밥': 'Хемуль покым паб',
-            '소고기볶음밥': 'Сокоги покым паб',
-            '새우볶음밥': 'Сеу покым паб',
-            '명가해장국': 'Менга хедян кук',
+            '명가해장국': 'Хедян кук',
             '잡채밥': 'Чапчебап',
             '비빔밥': 'Пибимпап',
             '돌솥비빔밥': 'Пибимпап в камне',
             '김치볶음밥': 'Кимчи боккымбап',
-            '뚝배기불고기': 'Пулькоги тук беги',
-            '광어매운탕': 'Квано меунтан',
+            '뚝배기불고기': 'Пулькоги в горшочке',
+            '광어매운탕': 'Острый суп с палтусом',
             '도가니탕': 'Доганитан',
             '알탕': 'Альтан',
-            '감자탕뚝배기': 'Камдятан тукбеги',
             '돈가스정식': 'Донкасс',
             '삼겹살정식': 'Самгепсаль+Рис',
+            '제육볶음': 'Чеюк поккым',
             '떡만두국': 'Ттокмандугук',
-            '육계장': 'Юккедян',
-            '김치찌개': 'Кимчи тиге',
+            '육계장': 'Юккеджан',
+            '김치찌개': 'Кимчи ччигэ',
             '차돌짬뽕밥': 'Чадоль чампонбап',
             '차돌짬뽕면': 'Чадоль чампон',
             '김밥': 'Кимбап',
@@ -969,24 +929,14 @@
         ];
 
         // 기본 메뉴 목록 (한글만 저장)
-        // 카테고리별 메뉴 구조
-        const MENU_CATEGORIES = {
-            '국물류': ['순대국', '갈비탕', '설렁탕', '해물순두부찌개', '김치순두부', '된장찌개', '해물된장찌개', '명가해장국', '광어매운탕', '도가니탕', '알탕', '감자탕뚝배기', '떡만두국', '육계장', '김치찌개'],
-            '고기류': ['뚝배기불고기', '삼겹살정식', '돈가스정식'],
-            '생선류': ['고등어조림', '고등어구이'],
-            '밥류': ['짬뽕밥', '차돌짬뽕밥', '해물볶음밥', '소고기볶음밥', '새우볶음밥', '잡채밥', '비빔밥', '돌솥비빔밥', '김치볶음밥'],
-            '면류': ['짬뽕면', '차돌짬뽕면', '라면', '잔치국수', '비빔국수', '물냉면', '비빔냉면', '해물볶음면', '짜장면'],
-            '기타': ['랜덤 주문', '스킵']
-        };
-
-        // 호환성을 위한 평면 메뉴 리스트 (설정 저장/불러오기용)
         const DEFAULT_MENUS = [
-            ...MENU_CATEGORIES['국물류'],
-            ...MENU_CATEGORIES['고기류'],
-            ...MENU_CATEGORIES['생선류'],
-            ...MENU_CATEGORIES['밥류'],
-            ...MENU_CATEGORIES['면류'],
-            ...MENU_CATEGORIES['기타']
+            '랜덤 주문',
+            '순대국', '갈비탕', '짬뽕밥', '짬뽕면', '해물순두부', '순두부찌개',
+            '고등어조림', '고등어구이', '해물볶음밥', '명가해장국',
+            '잡채밥', '비빔밥', '돌솥비빔밥', '김치볶음밥', '뚝배기불고기',
+            '광어매운탕', '도가니탕', '알탕', '돈가스정식',
+            '삼겹살정식', '제육볶음', '떡만두국', '육계장', '김치찌개',
+            '차돌짬뽕밥', '차돌짬뽕면', '스킵'
         ];
 
         // 사이드 메뉴 목록 (한글만 저장)
@@ -1409,45 +1359,18 @@
         function renderMenuOptions() {
             const settings = loadSettings();
 
-            // 기본 메뉴를 카테고리별로 렌더링
+            // 기본 메뉴 렌더링
             const container = document.getElementById('menuOptions');
             container.innerHTML = '';
-
-            // 카테고리별로 렌더링
-            Object.entries(MENU_CATEGORIES).forEach(([categoryName, menus]) => {
-                // 카테고리 섹션 생성
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'menu-category';
-
-                // 카테고리 제목
-                const titleDiv = document.createElement('div');
-                titleDiv.className = 'menu-category-title';
-                titleDiv.textContent = categoryName;
-                categoryDiv.appendChild(titleDiv);
-
-                // 카테고리 메뉴 아이템들
-                const itemsDiv = document.createElement('div');
-                itemsDiv.className = 'menu-category-items';
-
-                menus.forEach(menu => {
-                    // settings.menuList에 있는 메뉴만 표시
-                    if (settings.menuList.includes(menu)) {
-                        const option = document.createElement('div');
-                        let className = 'menu-option';
-                        if (menu === '스킵') className += ' skip';
-                        if (menu === '랜덤 주문') className += ' random';
-                        option.className = className;
-                        option.textContent = menu === '랜덤 주문' ? '🎰 랜덤 주문' : menu;
-                        option.onclick = () => selectMenu(menu, option, 'main');
-                        itemsDiv.appendChild(option);
-                    }
-                });
-
-                // 카테고리에 메뉴가 있으면 컨테이너에 추가
-                if (itemsDiv.children.length > 0) {
-                    categoryDiv.appendChild(itemsDiv);
-                    container.appendChild(categoryDiv);
-                }
+            settings.menuList.forEach(menu => {
+                const option = document.createElement('div');
+                let className = 'menu-option';
+                if (menu === '스킵') className += ' skip';
+                if (menu === '랜덤 주문') className += ' random';
+                option.className = className;
+                option.textContent = menu === '랜덤 주문' ? '🎰 랜덤 주문' : menu;
+                option.onclick = () => selectMenu(menu, option, 'main');
+                container.appendChild(option);
             });
 
             // 사이드 메뉴 렌더링
@@ -1484,7 +1407,8 @@
             if (isSpinning) return; // 이미 실행 중이면 무시
             isSpinning = true;
 
-            const availableMenus = DEFAULT_MENUS.filter(m => m !== '랜덤 주문' && m !== '스킵');
+            const settings = loadSettings();
+            const availableMenus = settings.menuList.filter(m => m !== '랜덤 주문' && m !== '스킵');
 
             // 총 스핀 횟수 (점점 느려짐)
             const spinTimes = [100, 100, 120, 140, 160, 200, 250];
@@ -1588,7 +1512,8 @@
                     selectedRandomMenu = currentRandomMenu;
                     menuItem = currentRandomMenu;
                 } else {
-                    const availableMenus = DEFAULT_MENUS.filter(m => m !== '랜덤 주문' && m !== '스킵');
+                    const settings = loadSettings();
+                    const availableMenus = settings.menuList.filter(m => m !== '랜덤 주문' && m !== '스킵');
                     const randomIndex = Math.floor(Math.random() * availableMenus.length);
                     selectedRandomMenu = availableMenus[randomIndex];
                     menuItem = selectedRandomMenu;
