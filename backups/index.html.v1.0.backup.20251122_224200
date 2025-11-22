@@ -719,7 +719,7 @@
                 Happy Moments
             </div>
             <h1>🍱 롯데제과 러시아법인<br>점심 주문 시스템</h1>
-            <div class="subtitle">Система заказа обедов | Lunch Order System <span style="font-size: 0.75em; color: #999; margin-left: 8px;">v1.0</span></div>
+            <div class="subtitle">Система заказа обедов | Lunch Order System <span style="font-size: 0.75em; color: #999; margin-left: 8px;">v0.2</span></div>
 
             <!-- 날짜/시간 정보 -->
             <div style="margin: 15px 0; padding: 12px; background: #f8f9fa; border-radius: 10px; font-size: 0.95rem;">
@@ -2292,7 +2292,7 @@
                 const weatherDesc = current.lang_ru ? current.lang_ru[0].value : current.weatherDesc[0].value;
                 const humidity = current.humidity;
 
-                const weatherText = `🌤️ 모스크바 날씨: ${temp}°C (체감 ${feelsLike}°C) · 습도 ${humidity}%`;
+                const weatherText = `🌤️ 모스크바 날씨: ${temp}°C (체감 ${feelsLike}°C) · ${weatherDesc} · 습도 ${humidity}%`;
 
                 // 화면에 표시
                 document.getElementById('weatherInfo').textContent = weatherText;
