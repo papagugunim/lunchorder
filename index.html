@@ -678,8 +678,27 @@
                 font-size: 1.6rem;
             }
 
+            /* 메뉴를 모바일에서 2열로 고정 */
             .menu-category-items {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* 주문 현황 카드를 모바일에서 4열로 고정 */
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 12px 8px;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
             }
 
             .admin-controls {
@@ -688,10 +707,6 @@
 
             .tabs {
                 flex-direction: column;
-            }
-
-            .stat-number {
-                font-size: 2.2rem;
             }
         }
     </style>
