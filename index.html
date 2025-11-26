@@ -2252,7 +2252,7 @@
         // 모스크바 날씨 정보 가져오기 (캐싱 최적화)
         async function updateWeather() {
             const CACHE_KEY = 'weather_cache';
-            const CACHE_DURATION = 30 * 60 * 1000; // 30분
+            const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2시간 (날씨는 자주 바뀌지 않음)
 
             // 1️⃣ 먼저 캐시된 날씨 정보가 있으면 즉시 표시
             const cachedData = localStorage.getItem(CACHE_KEY);
@@ -2276,9 +2276,9 @@
 
             // 2️⃣ 백그라운드에서 새로운 날씨 정보 가져오기
             try {
-                // 타임아웃 설정 (5초)
+                // 타임아웃 설정 (3초 - 빠른 응답)
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
 
                 const response = await fetch('https://wttr.in/Moscow?format=j1', {
                     signal: controller.signal
@@ -2315,6 +2315,14 @@
         }
 
         async function init() {
+            // 🚀 날씨 정보를 가장 먼저 시작 (병렬 처리)
+            updateWeather();
+            setInterval(updateWeather, 2 * 60 * 60 * 1000); // 2시간마다
+
+            // 날짜/시간 업데이트 (매초)
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+
             // 페이지 로드 시 구글 시트에서 설정 동기화
             await loadSettingsFromGoogleSheet();
 
@@ -2324,14 +2332,6 @@
             updateTimeLeft();
             setInterval(updateTimeLeft, 60000);
             checkAndResetDaily();
-
-            // 날짜/시간 업데이트 (매초)
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-
-            // 날씨 정보 업데이트 (최초 1회 + 30분마다)
-            updateWeather();
-            setInterval(updateWeather, 30 * 60 * 1000);
 
             // 페이지 로드 시 구글 시트에서 주문 데이터 동기화
             await syncFromGoogleSheet();
