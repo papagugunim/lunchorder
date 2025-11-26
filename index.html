@@ -793,24 +793,24 @@
         <!-- 관리자 탭 -->
         <div id="admin" class="tab-content">
             <div class="card">
-                <h2 style="color: #ED1C24; margin-bottom: 20px;">📊 주문 현황 / Статус заказов</h2>
+                <h2 style="color: #ED1C24; margin-bottom: 20px;">📊 주문 현황</h2>
 
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number" id="totalOrders">0</div>
-                        <div class="stat-label">전체 주문<br>Всего</div>
+                        <div class="stat-label">전체 주문</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number" id="activeOrders">0</div>
-                        <div class="stat-label">식사 인원<br>Обеды</div>
+                        <div class="stat-label">식사 인원</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number" id="skipCount">0</div>
-                        <div class="stat-label">스킵<br>Пропуск</div>
+                        <div class="stat-label">스킵</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number" id="guestCount">0</div>
-                        <div class="stat-label">손님<br>Гости</div>
+                        <div class="stat-label">손님</div>
                     </div>
                 </div>
 
@@ -823,7 +823,7 @@
 
                 <!-- 손님 추가 -->
                 <div class="guest-section">
-                    <h3 style="color: #ff9800;">🎯 손님 추가 / Добавить гостей</h3>
+                    <h3 style="color: #ff9800;">🎯 손님 추가</h3>
                     <p style="margin: 10px 0; color: #666;">외부 손님이 있을 경우 추가하세요</p>
                     <div class="guest-list" id="guestList"></div>
                     <button class="btn btn-warning btn-small" onclick="addGuest()">+ 손님 추가</button>
@@ -834,10 +834,10 @@
                     <h3 style="color: #4caf50; margin-bottom: 15px;">📱 WhatsApp 전송용 텍스트 (식당용)</h3>
                     <div class="whatsapp-text" id="whatsappText"></div>
                     <button class="btn btn-success btn-full" onclick="copyToClipboard()">
-                        📋 클립보드에 복사 / Копировать
+                        📋 클립보드에 복사
                     </button>
                     <button class="btn btn-success btn-full" onclick="sendToRestaurant()" style="margin-top: 10px;">
-                        🍽️ 식당으로 전송하기 / Отправить в ресторан
+                        🍽️ 식당으로 전송하기
                     </button>
                 </div>
 
@@ -846,15 +846,6 @@
                     <h3 style="color: #9c27b0;">📊 직원별 선호 메뉴 통계</h3>
                     <p style="margin: 10px 0; color: #666;">각 직원이 가장 자주 주문한 메뉴 TOP 3</p>
                     <div id="employeePreferences"></div>
-                </div>
-
-                <div class="admin-controls">
-                    <button class="btn btn-secondary" onclick="downloadCSV()">
-                        📥 CSV 다운로드
-                    </button>
-                    <button class="btn btn-secondary" onclick="resetOrders()">
-                        🔄 주문 초기화
-                    </button>
                 </div>
             </div>
         </div>
