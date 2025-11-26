@@ -985,6 +985,16 @@
             '기타': ['랜덤 주문', '스킵']
         };
 
+        // 카테고리별 이모지
+        const CATEGORY_EMOJIS = {
+            '국물류': '🍲',
+            '고기류': '🥩',
+            '생선류': '🐟',
+            '밥류': '🍚',
+            '면류': '🍜',
+            '기타': '🍽️'
+        };
+
         // 호환성을 위한 평면 메뉴 리스트 (설정 저장/불러오기용)
         const DEFAULT_MENUS = [
             ...MENU_CATEGORIES['국물류'],
@@ -1428,7 +1438,7 @@
                 // 카테고리 제목
                 const titleDiv = document.createElement('div');
                 titleDiv.className = 'menu-category-title';
-                titleDiv.textContent = categoryName;
+                titleDiv.textContent = `${CATEGORY_EMOJIS[categoryName] || ''} ${categoryName}`;
                 categoryDiv.appendChild(titleDiv);
 
                 // 카테고리 메뉴 아이템들
